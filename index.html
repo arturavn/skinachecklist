@@ -1,31 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist de Peças</title>
+    <title>Smart Parts Inventory</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --background-color: #f8fafc;
-            --secondary-bg: #ffffff;
-            --text-color: #1e293b;
-            --border-color: #e2e8f0;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
+            --background: #000000;
+            --surface: #111111;
+            --surface-hover: #1a1a1a;
+            --primary: #00DC82;
+            --primary-dark: #00b368;
+            --text: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #00DC82;
+            --warning: #FFD600;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.5;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -35,156 +42,204 @@
         }
 
         .header {
-            background-color: var(--secondary-bg);
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 2rem;
+            margin-bottom: 4rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
         }
 
         h1 {
-            margin: 0;
-            font-size: 1.875rem;
+            font-size: 3rem;
             font-weight: 700;
-            color: var(--text-color);
-            background: linear-gradient(45deg, #2563eb, #1d4ed8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            color: var(--text);
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
         }
 
         .logo {
-            max-width: 120px;
+            max-width: 150px;
             height: auto;
+        }
+
+        .checklist-container {
+            background: var(--surface);
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border);
         }
 
         table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            margin-bottom: 2rem;
-            background-color: var(--secondary-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         th, td {
-            padding: 1rem;
+            padding: 1.5rem 2rem;
             text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
         }
 
         th {
-            background-color: #f8fafc;
             font-weight: 600;
-            color: var(--text-color);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.75rem;
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        td {
+            font-size: 0.95rem;
         }
 
         tr:hover {
-            background-color: #f1f5f9;
+            background: var(--surface-hover);
         }
 
         .button-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            justify-content: flex-end;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
         }
 
-        button {
-            padding: 0.75rem 1.5rem;
+        button, .button {
+            padding: 1rem 1.5rem;
             border: none;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.875rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            color: white;
+            justify-content: center;
+            gap: 0.75rem;
+            color: var(--background);
+            background: var(--text);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
         }
 
-        button.primary {
-            background: linear-gradient(45deg, #2563eb, #1d4ed8);
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        button.primary, .button.primary {
+            background: var(--primary);
+            color: var(--background);
         }
 
-        button.secondary {
-            background: linear-gradient(45deg, #64748b, #475569);
-            box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2);
+        button.secondary, .button.secondary {
+            background: var(--primary);
+            color: var(--background);
         }
 
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        button:hover, .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 220, 130, 0.2);
+        }
+
+        button.secondary:hover {
+            background: var(--surface-hover);
+            box-shadow: none;
         }
 
         select {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: white;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
             cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
         }
 
         select:hover {
-            border-color: var(--primary-color);
+            border-color: var(--primary);
         }
 
         select:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 220, 130, 0.1);
+        }
+
+        .status-possui {
+            color: var(--success);
+        }
+
+        .status-nao-possui {
+            color: #FF3B30;
         }
 
         #relatorio {
-            background-color: var(--secondary-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-top: 3rem;
+            border: 1px solid var(--border);
+            animation: slideUp 0.6s ease-out forwards;
         }
 
         #relatorio h2 {
-            color: var(--text-color);
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
         }
 
         #relatorio ul {
             list-style: none;
-            padding: 0;
-            margin: 0;
+            display: grid;
+            gap: 1rem;
         }
 
         #relatorio li {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+            background: var(--surface-hover);
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
 
-        #relatorio li:last-child {
-            border-bottom: none;
+        #relatorio li:hover {
+            transform: translateX(8px);
         }
 
         #relatorio li strong {
-            color: var(--primary-color);
+            color: var(--primary);
+            font-weight: 600;
         }
 
-        select option {
-            padding: 0.5rem;
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            transform-origin: 0 50%;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            z-index: 1000;
         }
 
         @media (max-width: 768px) {
@@ -194,64 +249,135 @@
 
             .header {
                 flex-direction: column;
+                gap: 2rem;
                 text-align: center;
-                padding: 1rem;
+                padding: 2rem 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h1::after {
+                left: 50%;
+                transform: translateX(-50%);
             }
 
             .button-container {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-            }
-
-            table {
-                font-size: 0.875rem;
+                grid-template-columns: 1fr;
             }
 
             th, td {
-                padding: 0.75rem;
+                padding: 1rem;
             }
         }
 
-        .status-possui {
-            color: var(--success-color);
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .status-nao-possui {
-            color: var(--warning-color);
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        tr {
+            animation: slideUp 0.3s ease-out forwards;
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            background: var(--primary);
+            color: var(--background);
+            border-radius: 12px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="progress-bar"></div>
     <div class="container">
         <div class="header">
             <h1>Checklist de Peças</h1>
             <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Peça</th>
-                    <th>Possui?</th>
-                </tr>
-            </thead>
-            <tbody id="checklist-body">
-            </tbody>
-        </table>
+        <div class="checklist-container slide-up">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Peças</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="checklist-body">
+                </tbody>
+            </table>
+        </div>
 
-        <div class="button-container">
+        <div class="button-container fade-in">
             <button onclick="gerarRelatorio()" class="primary">
                 Gerar Relatório
             </button>
-            <button onclick="baixarRelatorio('txt')" class="secondary">
-                Baixar como TXT
-            </button>
             <button onclick="baixarRelatorio('pdf')" class="primary">
-                Baixar como PDF
+                Download PDF
             </button>
+            <button onclick="exportarSelecoes()" class="secondary">
+                Salvar Seleções
+            </button>
+            <label for="importar" class="button primary">
+                Importar Seleções
+                <input type="file" id="importar" accept=".json" style="display: none;" onchange="importarSelecoes(this)">
+            </label>
         </div>
 
         <div id="relatorio"></div>
@@ -259,7 +385,7 @@
 
     <script>
         const pecas = [
-            'capô',
+            'Capô',
             'Farol Direito',
             'Farol Esquerdo',
             'Parachoque Dianteiro',
@@ -270,9 +396,9 @@
             'Condensador',
             'Ventoinha',
             'Sensores',
-            'fechadura capô',
-            'Acabamento painel Frontal',
-            'paralama Direito',
+            'Fechadura Capô',
+            'Acabamento Painel Frontal',
+            'Paralama Direito',
             'Paralama Esquerdo',
             'Acabamento Paralama Direito',
             'Acabamento Paralama Esquerdo',
@@ -280,15 +406,15 @@
             'Parabarro Esquerdo',
             'Roda',
             'Chicote Motor',
-            'Chicote Carroceria frontal',
+            'Chicote Carroceria Frontal',
             'Mangueira Radiador',
             'Intercooler',
             'Amortecedor Dianteiro Direito',
             'Amortecedor Dianteiro Esquerdo',
             'Amortecedor Traseiro Direito',
-            'Amortecedor Trasiero Esquerdo',
+            'Amortecedor Traseiro Esquerdo',
             'Molas Dianteiras',
-            'Molas traseiras',
+            'Molas Traseiras',
             'Eixo Traseiro',
             'Tambor de Freio Direito',
             'Tambor de Freio Esquerdo',
@@ -296,7 +422,7 @@
             'Manga de Eixo Esquerda',
             'Pinça de Freio Dianteira Direita',
             'Pinça de Freio Dianteira Esquerda',
-            'Pinça De Freio Traseira Direita',
+            'Pinça de Freio Traseira Direita',
             'Pinça de Freio Traseira Esquerda',
             'Semi Eixo Dianteiro Direito',
             'Semi Eixo Dianteiro Esquerdo',
@@ -312,7 +438,7 @@
             'Balança Dianteira Esquerda',
             'Balança Traseira Direita',
             'Balança Traseira Esquerda',
-            'Barra estabilizadora',
+            'Barra Estabilizadora',
             'Bieletas',
             'Disco de Freio',
             'Coxim Inferior',
@@ -325,40 +451,69 @@
             'Mangueira Turbina',
             'Caixa Filtro de Ar',
             'Duto Caixa Filtro Ar',
-            'Sensor de fluxo',
+            'Sensor de Fluxo',
             'Sonda Lambda',
-            'Sensor de oxigenio',
+            'Sensor de Oxigênio',
             'Silenciador Escapamento'
         ];
 
+        const progressBar = document.querySelector('.progress-bar');
+        let totalItems = pecas.length;
+        let completedItems = 0;
+
+        function updateProgress() {
+            const progress = (completedItems / totalItems) * 100;
+            progressBar.style.transform = `scaleX(${progress / 100})`;
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.classList.add('toast');
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
         const checklistBody = document.getElementById('checklist-body');
 
-        pecas.forEach(peca => {
+        pecas.forEach((peca, index) => {
             const row = document.createElement('tr');
+            row.style.animationDelay = `${index * 0.05}s`;
+            
             const pecaCell = document.createElement('td');
             pecaCell.textContent = peca;
+            
             const possuiCell = document.createElement('td');
             const select = document.createElement('select');
+            
             const optionNao = document.createElement('option');
             optionNao.value = 'Nao';
             optionNao.textContent = 'Não Possui';
+            
             const optionSim = document.createElement('option');
             optionSim.value = 'Sim';
             optionSim.textContent = 'Possui';
+            
             select.appendChild(optionNao);
             select.appendChild(optionSim);
 
             select.addEventListener('change', function() {
                 if (this.value === 'Sim') {
-                    const observacao = prompt(`Insira uma observação para a peça: ${peca}`);
+                    const observacao = prompt(`Insira uma observação para ${peca}:`);
                     this.setAttribute('data-observacao', observacao || 'Sem observação');
                     this.classList.remove('status-nao-possui');
                     this.classList.add('status-possui');
+                    completedItems++;
                 } else {
                     this.removeAttribute('data-observacao');
                     this.classList.remove('status-possui');
                     this.classList.add('status-nao-possui');
+                    completedItems = Math.max(0, completedItems - 1);
                 }
+                updateProgress();
             });
 
             select.classList.add('status-nao-possui');
@@ -372,55 +527,205 @@
             const relatorioDiv = document.getElementById('relatorio');
             relatorioDiv.innerHTML = '<h2>Relatório de Checklist</h2>';
             let relatorioHTML = '<ul>';
+            
             const rows = checklistBody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                const peca = row.cells[0].textContent;
+                const select = row.cells[1].querySelector('select');
+                const possui = select.value === 'Sim' ? 'Possui' : 'Não Possui';
+                const observacao = select.getAttribute('data-observacao') || 'Sem observação';
+                
+                const li = `<li style="animation-delay: ${index * 0.05}s" class="slide-up">
+                    <strong>${peca}:</strong> ${possui} - Observação: ${observacao}
+                </li>`;
+                relatorioHTML += li;
+            });
+            
+            relatorioHTML += '</ul>';
+            relatorioDiv.innerHTML += relatorioHTML;
+            relatorioDiv.scrollIntoView({ behavior: 'smooth' });
+            showToast('Relatório gerado com sucesso!');
+        }
+
+        function exportarSelecoes() {
+            const selecoes = {};
+            const rows = checklistBody.querySelectorAll('tr');
+            
             rows.forEach(row => {
                 const peca = row.cells[0].textContent;
                 const select = row.cells[1].querySelector('select');
                 const possui = select.value;
-                const observacao = select.getAttribute('data-observacao') || 'Sem observação';
-                relatorioHTML += `<li><strong>${peca}:</strong> ${possui} - Observação: ${observacao}</li>`;
+                const observacao = select.getAttribute('data-observacao') || '';
+                
+                selecoes[peca] = {
+                    possui: possui,
+                    observacao: observacao
+                };
             });
-            relatorioHTML += '</ul>';
-            relatorioDiv.innerHTML += relatorioHTML;
+
+            const blob = new Blob([JSON.stringify(selecoes, null, 2)], { type: 'application/json' });
+            const dataAtual = new Date().toISOString().split('T')[0];
+            saveAs(blob, `checklist_pecas_${dataAtual}.json`);
+            showToast('Seleções salvas com sucesso!');
+        }
+
+        function importarSelecoes(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const selecoes = JSON.parse(e.target.result);
+                        let novoCompletedItems = 0;
+                        
+                        const rows = checklistBody.querySelectorAll('tr');
+                        rows.forEach((row, index) => {
+                            const peca = row.cells[0].textContent;
+                            if (selecoes[peca]) {
+                                const select = row.cells[1].querySelector('select');
+                                select.value = selecoes[peca].possui;
+                                
+                                if (selecoes[peca].observacao) {
+                                    select.setAttribute('data-observacao', selecoes[peca].observacao);
+                                }
+                                
+                                select.classList.remove('status-possui', 'status-nao-possui');
+                                select.classList.add(selecoes[peca].possui === 'Sim' ? 'status-possui' : 'status-nao-possui');
+                                
+                                if (selecoes[peca].possui === 'Sim') {
+                                    novoCompletedItems++;
+                                }
+                                
+                                row.style.animation = 'none';
+                                row.offsetHeight;
+                                row.style.animation = 'slideUp 0.3s ease-out forwards';
+                                row.style.animationDelay = `${index * 0.05}s`;
+                            }
+                        });
+                        
+                        completedItems = novoCompletedItems;
+                        updateProgress();
+                        showToast('Seleções importadas com sucesso!');
+                    } catch (error) {
+                        showToast('Erro ao importar arquivo. Verifique o formato.');
+                    }
+                };
+                reader.readAsText(file);
+            }
         }
 
         function baixarRelatorio(tipo) {
-            let relatorio = 'Checklist de Peças:\n\n';
             const rows = checklistBody.querySelectorAll('tr');
-            rows.forEach(row => {
-                const peca = row.cells[0].textContent;
-                const select = row.cells[1].querySelector('select');
-                const possui = select.value;
-                const observacao = select.getAttribute('data-observacao') || 'Sem observação';
-                relatorio += `${peca}: ${possui} - Observação: ${observacao}\n`;
-            });
-
-            if (tipo === 'txt') {
-                const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8' });
-                saveAs(blob, 'relatorio_checklist.txt');
-            } else if (tipo === 'pdf') {
+            if (tipo === 'pdf') {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
+                
+                // Configurações da página
                 doc.setFont("helvetica");
-                doc.setFontSize(16);
-                doc.text("Checklist de Peças", 20, 20);
-                doc.setFontSize(12);
-                const linhas = relatorio.split('\n');
-                let yPos = 30;
-                linhas.forEach(linha => {
-                    if (yPos > 280) {
+                
+                // Fundo preto na parte superior
+                doc.setFillColor(0, 0, 0);
+                doc.rect(0, 0, 210, 25, 'F');
+                
+                // Título principal
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(18);
+                doc.setTextColor(255, 255, 255); // Branco
+                doc.text("Checklist de Peças", 20, 17);
+                
+                // Data do relatório
+                const dataAtual = new Date().toLocaleDateString('pt-BR');
+                doc.setFontSize(10);
+                doc.setTextColor(180, 180, 180); // Cinza claro
+                doc.text(`Data: ${dataAtual}`, 150, 17);
+                
+                // Conteúdo do relatório
+                let yPos = 40;
+                const rows = checklistBody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    if (yPos > 270) {
                         doc.addPage();
-                        yPos = 20;
+                        // Fundo preto no topo da nova página
+                        doc.setFillColor(0, 0, 0);
+                        doc.rect(0, 0, 210, 25, 'F');
+                        
+                        // Cabeçalho da nova página
+                        doc.setFont("helvetica", "bold");
+                        doc.setFontSize(16);
+                        doc.setTextColor(255, 255, 255);
+                        doc.text("Checklist de Peças - Continuação", 20, 17);
+                        yPos = 40;
                     }
-                    const splitText = doc.splitTextToSize(linha, 170);
-                    splitText.forEach(textLine => {
-                        doc.text(textLine, 20, yPos);
-                        yPos += 7;
+                    
+                    const peca = row.cells[0].textContent;
+                    const select = row.cells[1].querySelector('select');
+                    const possui = select.value;
+                    const observacao = select.getAttribute('data-observacao') || 'Sem observação';
+                    
+                    // Nome da peça
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(peca, 20, yPos);
+                    
+                    // Status (Possui/Não possui)
+                    if (possui === 'Sim') {
+                        doc.setTextColor(0, 220, 130); // Verde
+                        doc.text("Possui", 140, yPos);
+                    } else {
+                        doc.setTextColor(255, 59, 48); // Vermelho
+                        doc.text("Não Possui", 140, yPos);
+                    }
+                    
+                    // Observação em cinza e com recuo
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(10);
+                    doc.setTextColor(128, 128, 128);
+                    yPos += 6;
+                    const obsText = `Observação: ${observacao}`;
+                    const splitObs = doc.splitTextToSize(obsText, 150);
+                    splitObs.forEach(line => {
+                        doc.text(25, yPos, line);
+                        yPos += 5;
                     });
+                    
+                    yPos += 8; // Espaço extra entre itens
                 });
+                
+                // Rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for(let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.setTextColor(128, 128, 128);
+                    doc.text(`Página ${i} de ${pageCount}`, 20, 290);
+                    doc.text('Skina Ecopeças', doc.internal.pageSize.width - 40, 290);
+                }
+                
+                doc.save('checklist_pecas.pdf');
+                showToast('PDF gerado com sucesso!');
+                
                 doc.save('relatorio_checklist.pdf');
+                showToast('Relatório PDF baixado com sucesso!');
             }
         }
+
+        // Inicializa a barra de progresso
+        updateProgress();
+
+        // Inicializa animações quando a página carrega
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.querySelector('.header');
+            const buttons = document.querySelectorAll('button, .button');
+            
+            header.style.animation = 'fadeIn 0.6s ease-out forwards';
+            
+            buttons.forEach((button, index) => {
+                button.style.animation = 'fadeIn 0.3s ease-out forwards';
+                button.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
     </script>
 </body>
 </html>
