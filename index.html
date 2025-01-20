@@ -10,23 +10,51 @@
             margin: 20px;
             position: relative;
         }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .logo {
+            max-width: 120px;
+            height: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
         }
+
         th {
             background-color: #f4f4f4;
         }
+
         .button-container {
             text-align: center;
             margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
         }
+
         button {
             padding: 10px 15px;
             background-color: #4CAF50;
@@ -34,30 +62,68 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            white-space: nowrap;
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         #relatorio {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ddd;
             background-color: #f9f9f9;
         }
-        .logo-container {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-right: 20px;
+
+        select {
+            width: 100%;
+            padding: 5px;
         }
-        .logo {
-            max-width: 120px;
-            height: auto;
+
+        @media (max-width: 768px) {
+            body {
+                margin: 10px;
+            }
+
+            .header {
+                justify-content: center;
+                text-align: center;
+            }
+
+            h1 {
+                width: 100%;
+                text-align: center;
+            }
+
+            .logo {
+                margin: 0 auto;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            select {
+                padding: 8px 5px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>Checklist de Peças</h1>
+        <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
+    </div>
+
+
+</body>
+</html>
 
     <div class="logo-container">
         <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
