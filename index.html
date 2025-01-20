@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist de Peças</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            position: relative;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #relatorio {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            max-width: 150px;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
+
+    <h1>Checklist de Peças</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Peça</th>
+                <th>Possui?</th>
+            </tr>
+        </thead>
+        <tbody id="checklist-body">
+        
+        </tbody>
+    </table>
+
+    <div class="button-container">
+        <button onclick="gerarRelatorio()">Gerar Relatório</button>
+        <button onclick="baixarRelatorio('txt')">Baixar como TXT</button>
+        <button onclick="baixarRelatorio('pdf')">Baixar como PDF</button>
+    </div>
+
+    <div id="relatorio"></div>
+
+    <script>
+        const pecas = [
+            'capô',
+'Farol Direito',
+'Farol Esquerdo',
+'Parachoque Dianteiro',
+'Grade',
+'Painel Frontal',
+'Radiador',
+'Radiador Cambio',
+'Condensador',
+'Ventoinha',
+'Sensores',
+'fechadura capô',
+'Acabamento painel Frontal',
+'paralama Direito',
+'Paralama Esquerdo',
+'Acabamento Paralama Direito',
+'Acabamento Paralama Esquerdo',
+'Parabarro Direito',
+'Parabarro Esquerdo',
+'Roda',
+'Chicote Motor',
+'Chicote Carroceria frontal',
+'Mangueira Radiador',
+'Intercooler',
+'Amortecedor Dianteiro Direito',
+'Amortecedor Dianteiro Esquerdo',
+'Amortecedor Traseiro Direito',
+'Amortecedor Trasiero Esquerdo',
+'Molas Dianteiras',
+'Molas traseiras',
+'Eixo Traseiro',
+'Tambor de Freio Direito',
+'Tambor de Freio Esquerdo',
+'Manga de Eixo Direita',
+'Manga de Eixo Esquerda',
+'Pinça de Freio Dianteira Direita',
+'Pinça de Freio Dianteira Esquerda',
+'Pinça De Freio Traseira Direita',
+'Pinça de Freio Traseira Esquerda',
+'Semi Eixo Dianteiro Direito',
+'Semi Eixo Dianteiro Esquerdo',
+'Semi Eixo Traseiro Direito',
+'Semi Eixo Traseiro Esquerdo',
+'Diferencial Dianteiro',
+'Diferencial Traseiro',
+'Cambio',
+'Seletora Cambio',
+'Modulo Cambio',
+'Agregado',
+'Balança Dianteira Direita',
+'Balança Dianteira Esquerda',
+'Balança Traseira Direita',
+'Balança Traseira Esquerda',
+'Barra estabilizadora',
+'Bieletas',
+'Disco de Freio',
+'Coxim Inferior',
+'Coxim Cambio',
+'Coxim Motor',
+'Catalizador',
+'Coletor Escape',
+'Coletor',
+'Turbina',
+'Mangueira Turbina',
+'Caixa Filtro de Ar',
+'Duto Caixa Filtro Ar',
+'Sensor de fluxo',
+'Sonda Lambda',
+'Sensor de oxigenio',
+'Silenciador Escapamento'
+
+        ];
+
+        const checklistBody = document.getElementById('checklist-body');
+
+        pecas.forEach(peca => {
+            const row = document.createElement('tr');
+
+            const pecaCell = document.createElement('td');
+            pecaCell.textContent = peca;
+
+            const possuiCell = document.createElement('td');
+            const select = document.createElement('select');
+
+            const optionNao = document.createElement('option');
+            optionNao.value = 'Nao';
+            optionNao.textContent = 'Não Possui';
+
+            const optionSim = document.createElement('option');
+            optionSim.value = 'Sim';
+            optionSim.textContent = 'Possui';
+
+            select.appendChild(optionNao);
+            select.appendChild(optionSim);
+
+            select.addEventListener('change', function() {
+                if (this.value === 'Sim') {
+                    const observacao = prompt(`Insira uma observação para a peça: ${peca}`);
+                    this.setAttribute('data-observacao', observacao || 'Sem observação');
+                } else {
+                    this.removeAttribute('data-observacao');
+                }
+            });
+
+            possuiCell.appendChild(select);
+
+            row.appendChild(pecaCell);
+            row.appendChild(possuiCell);
+
+            checklistBody.appendChild(row);
+        });
+
+        function gerarRelatorio() {
+            const relatorioDiv = document.getElementById('relatorio');
+            relatorioDiv.innerHTML = '<h2>Relatório de Checklist</h2>';
+
+            let relatorioHTML = '<ul>';
+
+            const rows = checklistBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const peca = row.cells[0].textContent;
+                const select = row.cells[1].querySelector('select');
+                const possui = select.value;
+                const observacao = select.getAttribute('data-observacao') || 'Sem observação';
+
+                relatorioHTML += `<li><strong>${peca}:</strong> ${possui} - Observação: ${observacao}</li>`;
+            });
+
+            relatorioHTML += '</ul>';
+
+            relatorioDiv.innerHTML += relatorioHTML;
+        }
+
+        function baixarRelatorio(tipo) {
+            let relatorio = 'Checklist de Peças:\n\n';
+
+            const rows = checklistBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const peca = row.cells[0].textContent;
+                const select = row.cells[1].querySelector('select');
+                const possui = select.value;
+                const observacao = select.getAttribute('data-observacao') || 'Sem observação';
+                relatorio += `${peca}: ${possui} - Observação: ${observacao}\n`;
+            });
+
+            if (tipo === 'txt') {
+                const blob = new Blob([relatorio], { type: 'text/plain' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'relatorio_checklist.txt';
+                link.click();
+            } else if (tipo === 'pdf') {
+                const pdfWindow = window.open('', '', 'width=800,height=600');
+                pdfWindow.document.write(`<pre>${relatorio}</pre>`);
+                pdfWindow.document.close();
+                pdfWindow.print();
+            }
+        }
+    </script>
+
+</body>
+</html>
