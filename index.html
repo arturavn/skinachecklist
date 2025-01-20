@@ -121,16 +121,6 @@
         <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
     </div>
 
-
-</body>
-</html>
-
-    <div class="logo-container">
-        <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
-    </div>
-
-    <h1>Checklist de Peças</h1>
-
     <table>
         <thead>
             <tr>
@@ -139,7 +129,6 @@
             </tr>
         </thead>
         <tbody id="checklist-body">
-        
         </tbody>
     </table>
 
@@ -154,76 +143,75 @@
     <script>
         const pecas = [
             'capô',
-'Farol Direito',
-'Farol Esquerdo',
-'Parachoque Dianteiro',
-'Grade',
-'Painel Frontal',
-'Radiador',
-'Radiador Cambio',
-'Condensador',
-'Ventoinha',
-'Sensores',
-'fechadura capô',
-'Acabamento painel Frontal',
-'paralama Direito',
-'Paralama Esquerdo',
-'Acabamento Paralama Direito',
-'Acabamento Paralama Esquerdo',
-'Parabarro Direito',
-'Parabarro Esquerdo',
-'Roda',
-'Chicote Motor',
-'Chicote Carroceria frontal',
-'Mangueira Radiador',
-'Intercooler',
-'Amortecedor Dianteiro Direito',
-'Amortecedor Dianteiro Esquerdo',
-'Amortecedor Traseiro Direito',
-'Amortecedor Trasiero Esquerdo',
-'Molas Dianteiras',
-'Molas traseiras',
-'Eixo Traseiro',
-'Tambor de Freio Direito',
-'Tambor de Freio Esquerdo',
-'Manga de Eixo Direita',
-'Manga de Eixo Esquerda',
-'Pinça de Freio Dianteira Direita',
-'Pinça de Freio Dianteira Esquerda',
-'Pinça De Freio Traseira Direita',
-'Pinça de Freio Traseira Esquerda',
-'Semi Eixo Dianteiro Direito',
-'Semi Eixo Dianteiro Esquerdo',
-'Semi Eixo Traseiro Direito',
-'Semi Eixo Traseiro Esquerdo',
-'Diferencial Dianteiro',
-'Diferencial Traseiro',
-'Cambio',
-'Seletora Cambio',
-'Modulo Cambio',
-'Agregado',
-'Balança Dianteira Direita',
-'Balança Dianteira Esquerda',
-'Balança Traseira Direita',
-'Balança Traseira Esquerda',
-'Barra estabilizadora',
-'Bieletas',
-'Disco de Freio',
-'Coxim Inferior',
-'Coxim Cambio',
-'Coxim Motor',
-'Catalizador',
-'Coletor Escape',
-'Coletor',
-'Turbina',
-'Mangueira Turbina',
-'Caixa Filtro de Ar',
-'Duto Caixa Filtro Ar',
-'Sensor de fluxo',
-'Sonda Lambda',
-'Sensor de oxigenio',
-'Silenciador Escapamento'
-
+            'Farol Direito',
+            'Farol Esquerdo',
+            'Parachoque Dianteiro',
+            'Grade',
+            'Painel Frontal',
+            'Radiador',
+            'Radiador Cambio',
+            'Condensador',
+            'Ventoinha',
+            'Sensores',
+            'fechadura capô',
+            'Acabamento painel Frontal',
+            'paralama Direito',
+            'Paralama Esquerdo',
+            'Acabamento Paralama Direito',
+            'Acabamento Paralama Esquerdo',
+            'Parabarro Direito',
+            'Parabarro Esquerdo',
+            'Roda',
+            'Chicote Motor',
+            'Chicote Carroceria frontal',
+            'Mangueira Radiador',
+            'Intercooler',
+            'Amortecedor Dianteiro Direito',
+            'Amortecedor Dianteiro Esquerdo',
+            'Amortecedor Traseiro Direito',
+            'Amortecedor Trasiero Esquerdo',
+            'Molas Dianteiras',
+            'Molas traseiras',
+            'Eixo Traseiro',
+            'Tambor de Freio Direito',
+            'Tambor de Freio Esquerdo',
+            'Manga de Eixo Direita',
+            'Manga de Eixo Esquerda',
+            'Pinça de Freio Dianteira Direita',
+            'Pinça de Freio Dianteira Esquerda',
+            'Pinça De Freio Traseira Direita',
+            'Pinça de Freio Traseira Esquerda',
+            'Semi Eixo Dianteiro Direito',
+            'Semi Eixo Dianteiro Esquerdo',
+            'Semi Eixo Traseiro Direito',
+            'Semi Eixo Traseiro Esquerdo',
+            'Diferencial Dianteiro',
+            'Diferencial Traseiro',
+            'Cambio',
+            'Seletora Cambio',
+            'Modulo Cambio',
+            'Agregado',
+            'Balança Dianteira Direita',
+            'Balança Dianteira Esquerda',
+            'Balança Traseira Direita',
+            'Balança Traseira Esquerda',
+            'Barra estabilizadora',
+            'Bieletas',
+            'Disco de Freio',
+            'Coxim Inferior',
+            'Coxim Cambio',
+            'Coxim Motor',
+            'Catalizador',
+            'Coletor Escape',
+            'Coletor',
+            'Turbina',
+            'Mangueira Turbina',
+            'Caixa Filtro de Ar',
+            'Duto Caixa Filtro Ar',
+            'Sensor de fluxo',
+            'Sonda Lambda',
+            'Sensor de oxigenio',
+            'Silenciador Escapamento'
         ];
 
         const checklistBody = document.getElementById('checklist-body');
@@ -258,10 +246,8 @@
             });
 
             possuiCell.appendChild(select);
-
             row.appendChild(pecaCell);
             row.appendChild(possuiCell);
-
             checklistBody.appendChild(row);
         });
 
@@ -282,7 +268,6 @@
             });
 
             relatorioHTML += '</ul>';
-
             relatorioDiv.innerHTML += relatorioHTML;
         }
 
@@ -312,6 +297,5 @@
             }
         }
     </script>
-
 </body>
 </html>
