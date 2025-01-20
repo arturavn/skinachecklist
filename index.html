@@ -4,25 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checklist de Peças</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --background-color: #f8fafc;
+            --secondary-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            position: relative;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
         .header {
+            background-color: var(--secondary-bg);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 20px;
+            gap: 2rem;
         }
 
         h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-color);
+            background: linear-gradient(45deg, #2563eb, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .logo {
@@ -32,113 +63,199 @@
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 2rem;
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
+            padding: 1rem;
             text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background-color: #f4f4f4;
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
         }
 
         .button-container {
-            text-align: center;
-            margin-bottom: 20px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-bottom: 2rem;
         }
 
         button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.875rem;
             cursor: pointer;
-            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        button.primary {
+            background: linear-gradient(45deg, #2563eb, #1d4ed8);
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        button.secondary {
+            background: linear-gradient(45deg, #64748b, #475569);
+            box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2);
         }
 
         button:hover {
-            background-color: #45a049;
-        }
-
-        #relatorio {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            background-color: #f9f9f9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
         }
 
         select {
             width: 100%;
-            padding: 5px;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: white;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: var(--primary-color);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        #relatorio {
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        #relatorio h2 {
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        #relatorio ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #relatorio li {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #relatorio li:last-child {
+            border-bottom: none;
+        }
+
+        #relatorio li strong {
+            color: var(--primary-color);
+        }
+
+        select option {
+            padding: 0.5rem;
         }
 
         @media (max-width: 768px) {
-            body {
-                margin: 10px;
+            .container {
+                padding: 1rem;
             }
 
             .header {
-                justify-content: center;
+                flex-direction: column;
                 text-align: center;
+                padding: 1rem;
             }
 
-            h1 {
-                width: 100%;
-                text-align: center;
-            }
-
-            .logo {
-                margin: 0 auto;
-            }
-
-            th, td {
-                padding: 8px 5px;
+            .button-container {
+                flex-direction: column;
             }
 
             button {
                 width: 100%;
-                margin: 5px 0;
             }
 
-            select {
-                padding: 8px 5px;
+            table {
+                font-size: 0.875rem;
             }
+
+            th, td {
+                padding: 0.75rem;
+            }
+        }
+
+        .status-possui {
+            color: var(--success-color);
+        }
+
+        .status-nao-possui {
+            color: var(--warning-color);
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Checklist de Peças</h1>
-        <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
+    <div class="container">
+        <div class="header">
+            <h1>Checklist de Peças</h1>
+            <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Peça</th>
+                    <th>Possui?</th>
+                </tr>
+            </thead>
+            <tbody id="checklist-body">
+            </tbody>
+        </table>
+
+        <div class="button-container">
+            <button onclick="gerarRelatorio()" class="primary">
+                Gerar Relatório
+            </button>
+            <button onclick="baixarRelatorio('txt')" class="secondary">
+                Baixar como TXT
+            </button>
+            <button onclick="baixarRelatorio('pdf')" class="primary">
+                Baixar como PDF
+            </button>
+        </div>
+
+        <div id="relatorio"></div>
     </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Peça</th>
-                <th>Possui?</th>
-            </tr>
-        </thead>
-        <tbody id="checklist-body">
-        </tbody>
-    </table>
-
-    <div class="button-container">
-        <button onclick="gerarRelatorio()">Gerar Relatório</button>
-        <button onclick="baixarRelatorio('txt')">Baixar como TXT</button>
-        <button onclick="baixarRelatorio('pdf')">Baixar como PDF</button>
-    </div>
-
-    <div id="relatorio"></div>
 
     <script>
         const pecas = [
@@ -218,21 +335,16 @@
 
         pecas.forEach(peca => {
             const row = document.createElement('tr');
-
             const pecaCell = document.createElement('td');
             pecaCell.textContent = peca;
-
             const possuiCell = document.createElement('td');
             const select = document.createElement('select');
-
             const optionNao = document.createElement('option');
             optionNao.value = 'Nao';
             optionNao.textContent = 'Não Possui';
-
             const optionSim = document.createElement('option');
             optionSim.value = 'Sim';
             optionSim.textContent = 'Possui';
-
             select.appendChild(optionNao);
             select.appendChild(optionSim);
 
@@ -240,11 +352,16 @@
                 if (this.value === 'Sim') {
                     const observacao = prompt(`Insira uma observação para a peça: ${peca}`);
                     this.setAttribute('data-observacao', observacao || 'Sem observação');
+                    this.classList.remove('status-nao-possui');
+                    this.classList.add('status-possui');
                 } else {
                     this.removeAttribute('data-observacao');
+                    this.classList.remove('status-possui');
+                    this.classList.add('status-nao-possui');
                 }
             });
 
+            select.classList.add('status-nao-possui');
             possuiCell.appendChild(select);
             row.appendChild(pecaCell);
             row.appendChild(possuiCell);
@@ -254,26 +371,21 @@
         function gerarRelatorio() {
             const relatorioDiv = document.getElementById('relatorio');
             relatorioDiv.innerHTML = '<h2>Relatório de Checklist</h2>';
-
             let relatorioHTML = '<ul>';
-
             const rows = checklistBody.querySelectorAll('tr');
             rows.forEach(row => {
                 const peca = row.cells[0].textContent;
                 const select = row.cells[1].querySelector('select');
                 const possui = select.value;
                 const observacao = select.getAttribute('data-observacao') || 'Sem observação';
-
                 relatorioHTML += `<li><strong>${peca}:</strong> ${possui} - Observação: ${observacao}</li>`;
             });
-
             relatorioHTML += '</ul>';
             relatorioDiv.innerHTML += relatorioHTML;
         }
 
         function baixarRelatorio(tipo) {
             let relatorio = 'Checklist de Peças:\n\n';
-
             const rows = checklistBody.querySelectorAll('tr');
             rows.forEach(row => {
                 const peca = row.cells[0].textContent;
@@ -284,16 +396,29 @@
             });
 
             if (tipo === 'txt') {
-                const blob = new Blob([relatorio], { type: 'text/plain' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'relatorio_checklist.txt';
-                link.click();
+                const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8' });
+                saveAs(blob, 'relatorio_checklist.txt');
             } else if (tipo === 'pdf') {
-                const pdfWindow = window.open('', '', 'width=800,height=600');
-                pdfWindow.document.write(`<pre>${relatorio}</pre>`);
-                pdfWindow.document.close();
-                pdfWindow.print();
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFont("helvetica");
+                doc.setFontSize(16);
+                doc.text("Checklist de Peças", 20, 20);
+                doc.setFontSize(12);
+                const linhas = relatorio.split('\n');
+                let yPos = 30;
+                linhas.forEach(linha => {
+                    if (yPos > 280) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    const splitText = doc.splitTextToSize(linha, 170);
+                    splitText.forEach(textLine => {
+                        doc.text(textLine, 20, yPos);
+                        yPos += 7;
+                    });
+                });
+                doc.save('relatorio_checklist.pdf');
             }
         }
     </script>
