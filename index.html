@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Parts Inventory</title>
+    <title>CheckList de Peças</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --background: #000000;
@@ -45,7 +45,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 4rem;
+            margin-bottom: 2rem;
             padding: 2rem 0;
             border-bottom: 1px solid var(--border);
         }
@@ -72,6 +72,100 @@
         .logo {
             max-width: 150px;
             height: auto;
+        }
+
+        .piece-management {
+            margin-bottom: 1rem;
+        }
+
+        .piece-management button {
+            background: var(--primary);
+            color: var(--background);
+            border: none;
+        }
+
+        .piece-management button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 220, 130, 0.2);
+        }
+
+        .search-piece-form {
+            margin-bottom: 1rem;
+        }
+
+        .search-piece-form input {
+            width: 100%;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-piece-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 220, 130, 0.1);
+        }
+
+        .search-piece-form input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .vehicle-info {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input[type="number"] {
+            width: 100%;
+            min-width: 150px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 220, 130, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-secondary);
         }
 
         .checklist-container {
@@ -144,6 +238,7 @@
         button.secondary, .button.secondary {
             background: var(--primary);
             color: var(--background);
+            border: none;
         }
 
         button:hover, .button:hover {
@@ -152,8 +247,8 @@
         }
 
         button.secondary:hover {
-            background: var(--surface-hover);
-            box-shadow: none;
+            background: var(--primary-dark);
+            box-shadow: 0 8px 30px rgba(0, 220, 130, 0.2);
         }
 
         select {
@@ -190,7 +285,6 @@
         .status-nao-possui {
             color: #FF3B30;
         }
-
         #relatorio {
             background: var(--surface);
             border-radius: 24px;
@@ -242,33 +336,130 @@
             z-index: 1000;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--surface);
+            margin: 5% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .add-piece-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .add-piece-form input {
+            flex: 1;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .piece-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .piece-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--surface-hover);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .piece-item button {
+            padding: 0.5rem 1rem;
+            background: #FF3B30;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .piece-item button:hover {
+            background: #ff1f1f;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            background: var(--primary);
+            color: var(--background);
+            border-radius: 12px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out forwards;
+            z-index: 1000;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
             }
-
             .header {
                 flex-direction: column;
                 gap: 2rem;
                 text-align: center;
                 padding: 2rem 1rem;
             }
-
             h1 {
                 font-size: 2rem;
             }
-
             h1::after {
                 left: 50%;
                 transform: translateX(-50%);
             }
-
             .button-container {
                 grid-template-columns: 1fr;
             }
-
             th, td {
                 padding: 1rem;
+            }
+            .vehicle-info {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -288,6 +479,17 @@
                 opacity: 0;
             }
             to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
                 opacity: 1;
             }
         }
@@ -317,30 +519,6 @@
             background: var(--primary);
             border-radius: 3px;
         }
-
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 1rem 2rem;
-            background: var(--primary);
-            color: var(--background);
-            border-radius: 12px;
-            font-weight: 500;
-            animation: slideIn 0.3s ease-out forwards;
-            z-index: 1000;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 <body>
@@ -349,6 +527,21 @@
         <div class="header">
             <h1>Checklist de Peças</h1>
             <img src="LOGO FUNDO TRANSPARENTE.png" alt="Logo Skina Ecopeças" class="logo">
+        </div>
+
+        <div class="piece-management fade-in">
+            <button onclick="showPieceModal()" class="secondary">Gerenciar Peças</button>
+        </div>
+
+        <div class="vehicle-info fade-in">
+            <div class="input-group">
+                <label for="vehicle-name">Nome do Veículo</label>
+                <input type="text" id="vehicle-name" placeholder="Ex: Fiat Uno" required>
+            </div>
+            <div class="input-group">
+                <label for="vehicle-year">Ano do Veículo</label>
+                <input type="number" id="vehicle-year" placeholder="Ex: 2020" min="1900" max="2025" required>
+            </div>
         </div>
 
         <div class="checklist-container slide-up">
@@ -365,15 +558,9 @@
         </div>
 
         <div class="button-container fade-in">
-            <button onclick="gerarRelatorio()" class="primary">
-                Gerar Relatório
-            </button>
-            <button onclick="baixarRelatorio('pdf')" class="primary">
-                Download PDF
-            </button>
-            <button onclick="exportarSelecoes()" class="secondary">
-                Salvar Seleções
-            </button>
+            <button onclick="gerarRelatorio()" class="primary">Gerar Relatório</button>
+            <button onclick="baixarRelatorio('pdf')" class="primary">Download PDF</button>
+            <button onclick="exportarSelecoes()" class="secondary">Salvar Seleções</button>
             <label for="importar" class="button primary">
                 Importar Seleções
                 <input type="file" id="importar" accept=".json" style="display: none;" onchange="importarSelecoes(this)">
@@ -383,339 +570,421 @@
         <div id="relatorio"></div>
     </div>
 
+    <div id="pieceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gerenciar Peças</h2>
+                <button onclick="closePieceModal()" class="close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-piece-form">
+                    <input type="text" id="searchPiece" placeholder="Pesquisar peça..." onkeyup="filterPieces()">
+                </div>
+                <div class="add-piece-form">
+                    <input type="text" id="newPieceName" placeholder="Nome da nova peça">
+                    <button onclick="addNewPiece()" class="primary">Adicionar Peça</button>
+                </div>
+                <div class="piece-list" id="piecesList">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const pecas = [
-            'Capô',
-            'Farol Direito',
-            'Farol Esquerdo',
-            'Parachoque Dianteiro',
-            'Grade',
-            'Painel Frontal',
-            'Radiador',
-            'Radiador Cambio',
-            'Condensador',
-            'Ventoinha',
-            'Sensores',
-            'Fechadura Capô',
-            'Acabamento Painel Frontal',
-            'Paralama Direito',
-            'Paralama Esquerdo',
-            'Acabamento Paralama Direito',
-            'Acabamento Paralama Esquerdo',
-            'Parabarro Direito',
-            'Parabarro Esquerdo',
-            'Roda',
-            'Chicote Motor',
-            'Chicote Carroceria Frontal',
-            'Mangueira Radiador',
-            'Intercooler',
-            'Amortecedor Dianteiro Direito',
-            'Amortecedor Dianteiro Esquerdo',
-            'Amortecedor Traseiro Direito',
-            'Amortecedor Traseiro Esquerdo',
-            'Molas Dianteiras',
-            'Molas Traseiras',
-            'Eixo Traseiro',
-            'Tambor de Freio Direito',
-            'Tambor de Freio Esquerdo',
-            'Manga de Eixo Direita',
-            'Manga de Eixo Esquerda',
-            'Pinça de Freio Dianteira Direita',
-            'Pinça de Freio Dianteira Esquerda',
-            'Pinça de Freio Traseira Direita',
-            'Pinça de Freio Traseira Esquerda',
-            'Semi Eixo Dianteiro Direito',
-            'Semi Eixo Dianteiro Esquerdo',
-            'Semi Eixo Traseiro Direito',
-            'Semi Eixo Traseiro Esquerdo',
-            'Diferencial Dianteiro',
-            'Diferencial Traseiro',
-            'Cambio',
-            'Seletora Cambio',
-            'Modulo Cambio',
-            'Agregado',
-            'Balança Dianteira Direita',
-            'Balança Dianteira Esquerda',
-            'Balança Traseira Direita',
-            'Balança Traseira Esquerda',
-            'Barra Estabilizadora',
-            'Bieletas',
-            'Disco de Freio',
-            'Coxim Inferior',
-            'Coxim Cambio',
-            'Coxim Motor',
-            'Catalizador',
-            'Coletor Escape',
-            'Coletor',
-            'Turbina',
-            'Mangueira Turbina',
-            'Caixa Filtro de Ar',
-            'Duto Caixa Filtro Ar',
-            'Sensor de Fluxo',
-            'Sonda Lambda',
-            'Sensor de Oxigênio',
-            'Silenciador Escapamento'
-        ];
+        const pecas = ['Capô', 'Farol Direito', 'Farol Esquerdo', 'Parachoque Dianteiro', 'Grade', 'Painel Frontal', 'Radiador', 'Radiador Cambio', 'Condensador', 'Ventoinha', 'Sensores', 'Fechadura Capô', 'Acabamento Painel Frontal', 'Paralama Direito', 'Paralama Esquerdo', 'Acabamento Paralama Direito', 'Acabamento Paralama Esquerdo', 'Parabarro Direito', 'Parabarro Esquerdo', 'Roda', 'Chicote Motor', 'Chicote Carroceria Frontal', 'Mangueira Radiador', 'Intercooler', 'Amortecedor Dianteiro Direito', 'Amortecedor Dianteiro Esquerdo', 'Amortecedor Traseiro Direito', 'Amortecedor Traseiro Esquerdo', 'Molas Dianteiras', 'Molas Traseiras', 'Eixo Traseiro', 'Tambor de Freio Direito', 'Tambor de Freio Esquerdo', 'Manga de Eixo Direita', 'Manga de Eixo Esquerda', 'Pinça de Freio Dianteira Direita', 'Pinça de Freio Dianteira Esquerda', 'Pinça de Freio Traseira Direita', 'Pinça de Freio Traseira Esquerda', 'Semi Eixo Dianteiro Direito', 'Semi Eixo Dianteiro Esquerdo', 'Semi Eixo Traseiro Direito', 'Semi Eixo Traseiro Esquerdo', 'Diferencial Dianteiro', 'Diferencial Traseiro', 'Cambio', 'Seletora Cambio', 'Modulo Cambio', 'Agregado', 'Balança Dianteira Direita', 'Balança Dianteira Esquerda', 'Balança Traseira Direita', 'Balança Traseira Esquerda', 'Barra Estabilizadora', 'Bieletas', 'Disco de Freio', 'Coxim Inferior', 'Coxim Cambio', 'Coxim Motor', 'Catalizador', 'Coletor Escape', 'Coletor', 'Turbina', 'Mangueira Turbina', 'Caixa Filtro de Ar', 'Duto Caixa Filtro Ar', 'Sensor de Fluxo', 'Sonda Lambda', 'Sensor de Oxigênio', 'Silenciador Escapamento'];
 
-        const progressBar = document.querySelector('.progress-bar');
-        let totalItems = pecas.length;
-        let completedItems = 0;
+let customPecas = new Set(pecas);
+const progressBar = document.querySelector('.progress-bar');
+let totalItems = pecas.length;
+let completedItems = 0;
 
-        function updateProgress() {
-            const progress = (completedItems / totalItems) * 100;
-            progressBar.style.transform = `scaleX(${progress / 100})`;
+function updateProgress() {
+    const progress = (completedItems / totalItems) * 100;
+    progressBar.style.transform = `scaleX(${progress / 100})`;
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+function showPieceModal() {
+    const modal = document.getElementById('pieceModal');
+    modal.style.display = 'block';
+    updatePiecesList();
+}
+
+function closePieceModal() {
+    const modal = document.getElementById('pieceModal');
+    modal.style.display = 'none';
+}
+
+function filterPieces() {
+    const searchInput = document.getElementById('searchPiece');
+    const filter = searchInput.value.toLowerCase();
+    const piecesList = document.getElementById('piecesList');
+    const pieces = Array.from(customPecas).sort();
+    
+    piecesList.innerHTML = '';
+    
+    const filteredPieces = pieces.filter(peca => 
+        peca.toLowerCase().includes(filter)
+    );
+    
+    if (filteredPieces.length === 0) {
+        piecesList.innerHTML = '<div class="no-results">Nenhuma peça encontrada</div>';
+        return;
+    }
+    
+    filteredPieces.forEach(peca => {
+        const pieceItem = document.createElement('div');
+        pieceItem.className = 'piece-item';
+        pieceItem.innerHTML = `
+            <span>${peca}</span>
+            <button onclick="removePiece('${peca}')" class="remove-button">Remover</button>
+        `;
+        piecesList.appendChild(pieceItem);
+    });
+}
+
+function updatePiecesList() {
+    const searchInput = document.getElementById('searchPiece');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    filterPieces();
+}
+
+function addNewPiece() {
+    const input = document.getElementById('newPieceName');
+    const newPiece = input.value.trim();
+    
+    if (newPiece) {
+        if (customPecas.has(newPiece)) {
+            showToast('Esta peça já existe na lista!');
+            return;
         }
+        
+        customPecas.add(newPiece);
+        updatePiecesList();
+        updateChecklistTable();
+        input.value = '';
+        showToast('Peça adicionada com sucesso!');
+    }
+}
 
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.classList.add('toast');
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
+function removePiece(peca) {
+    customPecas.delete(peca);
+    updatePiecesList();
+    updateChecklistTable();
+    showToast('Peça removida com sucesso!');
+}
 
-        const checklistBody = document.getElementById('checklist-body');
+function updateChecklistTable() {
+    const checklistBody = document.getElementById('checklist-body');
+    checklistBody.innerHTML = '';
+    totalItems = customPecas.size;
+    completedItems = 0;
+    Array.from(customPecas).sort().forEach((peca, index) => {
+                const row = document.createElement('tr');
+                row.style.animationDelay = `${index * 0.05}s`;
+                
+                const pecaCell = document.createElement('td');
+                pecaCell.textContent = peca;
+                
+                const possuiCell = document.createElement('td');
+                const select = document.createElement('select');
+                
+                const optionNao = document.createElement('option');
+                optionNao.value = 'Nao';
+                optionNao.textContent = 'Não Possui';
+                
+                const optionSim = document.createElement('option');
+                optionSim.value = 'Sim';
+                optionSim.textContent = 'Possui';
+                
+                select.appendChild(optionNao);
+                select.appendChild(optionSim);
 
-        pecas.forEach((peca, index) => {
-            const row = document.createElement('tr');
-            row.style.animationDelay = `${index * 0.05}s`;
-            
-            const pecaCell = document.createElement('td');
-            pecaCell.textContent = peca;
-            
-            const possuiCell = document.createElement('td');
-            const select = document.createElement('select');
-            
-            const optionNao = document.createElement('option');
-            optionNao.value = 'Nao';
-            optionNao.textContent = 'Não Possui';
-            
-            const optionSim = document.createElement('option');
-            optionSim.value = 'Sim';
-            optionSim.textContent = 'Possui';
-            
-            select.appendChild(optionNao);
-            select.appendChild(optionSim);
+                select.addEventListener('change', function() {
+    if (this.value === 'Sim') {
+        const observacao = prompt(`Insira uma observação para ${peca}:`);
+        this.setAttribute('data-observacao', observacao || 'Sem observação');
+        this.classList.add('status-possui');
+        this.classList.remove('status-nao-possui');
+        completedItems++;
+    } else {
+        this.removeAttribute('data-observacao');
+        this.classList.add('status-nao-possui');
+        this.classList.remove('status-possui');
+        completedItems = Math.max(0, completedItems - 1);
+    }
+    updateProgress();
+});
 
-            select.addEventListener('change', function() {
-                if (this.value === 'Sim') {
-                    const observacao = prompt(`Insira uma observação para ${peca}:`);
-                    this.setAttribute('data-observacao', observacao || 'Sem observação');
-                    this.classList.remove('status-nao-possui');
-                    this.classList.add('status-possui');
-                    completedItems++;
-                } else {
-                    this.removeAttribute('data-observacao');
-                    this.classList.remove('status-possui');
-                    this.classList.add('status-nao-possui');
-                    completedItems = Math.max(0, completedItems - 1);
-                }
-                updateProgress();
+
+                select.classList.add('status-nao-possui');
+                possuiCell.appendChild(select);
+                row.appendChild(pecaCell);
+                row.appendChild(possuiCell);
+                checklistBody.appendChild(row);
             });
-
-            select.classList.add('status-nao-possui');
-            possuiCell.appendChild(select);
-            row.appendChild(pecaCell);
-            row.appendChild(possuiCell);
-            checklistBody.appendChild(row);
-        });
+            
+            updateProgress();
+        }
 
         function gerarRelatorio() {
-            const relatorioDiv = document.getElementById('relatorio');
-            relatorioDiv.innerHTML = '<h2>Relatório de Checklist</h2>';
-            let relatorioHTML = '<ul>';
-            
-            const rows = checklistBody.querySelectorAll('tr');
-            rows.forEach((row, index) => {
-                const peca = row.cells[0].textContent;
-                const select = row.cells[1].querySelector('select');
-                const possui = select.value === 'Sim' ? 'Possui' : 'Não Possui';
-                const observacao = select.getAttribute('data-observacao') || 'Sem observação';
-                
-                const li = `<li style="animation-delay: ${index * 0.05}s" class="slide-up">
-                    <strong>${peca}:</strong> ${possui} - Observação: ${observacao}
-                </li>`;
-                relatorioHTML += li;
-            });
-            
-            relatorioHTML += '</ul>';
-            relatorioDiv.innerHTML += relatorioHTML;
-            relatorioDiv.scrollIntoView({ behavior: 'smooth' });
-            showToast('Relatório gerado com sucesso!');
+    const relatorioDiv = document.getElementById('relatorio');
+    const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
+    const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
+    
+    let relatorioHTML = `
+        <h2>Relatório de Checklist</h2>
+        <div>
+            <p><strong>Veículo:</strong> ${vehicleName}</p>
+            <p><strong>Ano:</strong> ${vehicleYear}</p>
+        </div>
+        <ul>
+    `;
+
+    const rows = document.querySelectorAll('#checklist-body tr');
+    rows.forEach(row => {
+        const peca = row.cells[0].textContent;
+        const select = row.cells[1].querySelector('select');
+        const possui = select.value === 'Sim' ? 'Possui' : 'Não Possui';
+        const observacao = select.getAttribute('data-observacao') || 'Sem observação';
+
+        relatorioHTML += `
+            <li>
+                <strong>${peca}:</strong> ${possui}
+                ${possui === 'Possui' ? ` - Observação: ${observacao}` : ''}
+            </li>
+        `;
+    });
+
+    relatorioHTML += '</ul>';
+    relatorioDiv.innerHTML = relatorioHTML;
+    relatorioDiv.scrollIntoView({ behavior: 'smooth' });
+    showToast('Relatório gerado com sucesso!');
+}
+
+function baixarRelatorio(tipo) {
+    if (tipo === 'pdf') {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Configuração de cabeçalho
+        function addHeader(pageNumber) {
+            doc.setFillColor(0, 0, 0); // Fundo preto
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(18);
+            doc.setTextColor(255, 255, 255); // Texto branco
+            doc.text('Checklist de Peças', 10, 15);
+            doc.setFontSize(10);
+            doc.setTextColor(200, 200, 200);
+            doc.text(`Página ${pageNumber}`, 180, 15);
         }
 
-        function exportarSelecoes() {
-            const selecoes = {};
-            const rows = checklistBody.querySelectorAll('tr');
-            
-            rows.forEach(row => {
-                const peca = row.cells[0].textContent;
-                const select = row.cells[1].querySelector('select');
-                const possui = select.value;
-                const observacao = select.getAttribute('data-observacao') || '';
-                
-                selecoes[peca] = {
-                    possui: possui,
-                    observacao: observacao
-                };
-            });
-
-            const blob = new Blob([JSON.stringify(selecoes, null, 2)], { type: 'application/json' });
-            const dataAtual = new Date().toISOString().split('T')[0];
-            saveAs(blob, `checklist_pecas_${dataAtual}.json`);
-            showToast('Seleções salvas com sucesso!');
+        // Configuração de rodapé
+        function addFooter(pageNumber) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(128, 128, 128); // Cinza
+            doc.text('Skina Ecopeças', 10, 290);
+            doc.text(`Página ${pageNumber}`, 180, 290);
         }
 
-        function importarSelecoes(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const selecoes = JSON.parse(e.target.result);
-                        let novoCompletedItems = 0;
-                        
-                        const rows = checklistBody.querySelectorAll('tr');
-                        rows.forEach((row, index) => {
-                            const peca = row.cells[0].textContent;
-                            if (selecoes[peca]) {
-                                const select = row.cells[1].querySelector('select');
-                                select.value = selecoes[peca].possui;
-                                
-                                if (selecoes[peca].observacao) {
-                                    select.setAttribute('data-observacao', selecoes[peca].observacao);
-                                }
-                                
-                                select.classList.remove('status-possui', 'status-nao-possui');
-                                select.classList.add(selecoes[peca].possui === 'Sim' ? 'status-possui' : 'status-nao-possui');
-                                
-                                if (selecoes[peca].possui === 'Sim') {
-                                    novoCompletedItems++;
-                                }
-                                
-                                row.style.animation = 'none';
-                                row.offsetHeight;
-                                row.style.animation = 'slideUp 0.3s ease-out forwards';
-                                row.style.animationDelay = `${index * 0.05}s`;
-                            }
-                        });
-                        
-                        completedItems = novoCompletedItems;
-                        updateProgress();
-                        showToast('Seleções importadas com sucesso!');
-                    } catch (error) {
-                        showToast('Erro ao importar arquivo. Verifique o formato.');
-                    }
-                };
-                reader.readAsText(file);
+        // Dados do veículo
+        const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
+        const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
+        const rows = document.querySelectorAll('#checklist-body tr');
+
+        let yPos = 30; // Posição inicial do texto
+        let pageNumber = 1;
+
+        addHeader(pageNumber);
+
+        // Dados do veículo no início do PDF
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0); // Preto
+        doc.text(`Veículo: ${vehicleName}`, 10, yPos);
+        doc.text(`Ano: ${vehicleYear}`, 10, yPos + 10);
+        yPos += 20;
+
+        // Listagem das peças
+        rows.forEach(row => {
+            const peca = row.cells[0].textContent;
+            const select = row.cells[1].querySelector('select');
+            const possui = select.value === 'Sim' ? 'Possui' : 'Não Possui';
+            const observacao = select.getAttribute('data-observacao') || 'Sem observação';
+
+            // Controle de quebra de página
+            if (yPos > 270) {
+                pageNumber++;
+                doc.addPage();
+                yPos = 30;
+                addHeader(pageNumber);
             }
-        }
 
-        function baixarRelatorio(tipo) {
-            const rows = checklistBody.querySelectorAll('tr');
-            if (tipo === 'pdf') {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                // Configurações da página
-                doc.setFont("helvetica");
-                
-                // Fundo preto na parte superior
-                doc.setFillColor(0, 0, 0);
-                doc.rect(0, 0, 210, 25, 'F');
-                
-                // Título principal
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(18);
-                doc.setTextColor(255, 255, 255); // Branco
-                doc.text("Checklist de Peças", 20, 17);
-                
-                // Data do relatório
-                const dataAtual = new Date().toLocaleDateString('pt-BR');
+            // Nome da peça
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0); // Preto
+            doc.text(`Peça: ${peca}`, 10, yPos);
+
+            // Status da peça
+            if (possui === 'Possui') {
+                doc.setTextColor(0, 220, 130); // Verde
+            } else {
+                doc.setTextColor(255, 59, 48); // Vermelho
+            }
+            doc.text(`Status: ${possui}`, 100, yPos);
+
+            // Observação
+            if (possui === 'Possui') {
+                doc.setFont('helvetica', 'italic');
                 doc.setFontSize(10);
-                doc.setTextColor(180, 180, 180); // Cinza claro
-                doc.text(`Data: ${dataAtual}`, 150, 17);
-                
-                // Conteúdo do relatório
-                let yPos = 40;
-                const rows = checklistBody.querySelectorAll('tr');
-                
+                doc.setTextColor(128, 128, 128); // Cinza
+                doc.text(`Observação: ${observacao}`, 10, yPos + 10);
+                yPos += 10;
+            }
+
+            yPos += 10;
+        });
+
+        // Rodapé final
+        addFooter(pageNumber);
+
+        // Salvar PDF
+        doc.save('relatorio_checklist.pdf');
+        showToast('PDF gerado com sucesso!');
+    }
+}
+
+
+
+function exportarSelecoes() {
+    const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
+    const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
+    const rows = document.querySelectorAll('#checklist-body tr');
+
+    // Estrutura do JSON para salvar as seleções
+    const selecoes = {
+        veiculo: {
+            nome: vehicleName,
+            ano: vehicleYear
+        },
+        pecas: []
+    };
+
+    // Iterar sobre as linhas da tabela para capturar as informações
+    rows.forEach(row => {
+        const peca = row.cells[0].textContent;
+        const select = row.cells[1].querySelector('select');
+        const possui = select.value === 'Sim'; // Convertendo para booleano
+        const observacao = select.getAttribute('data-observacao') || null;
+
+        selecoes.pecas.push({
+            nome: peca,
+            possui: possui,
+            observacao: possui ? observacao : null // Observação só é válida se "Possui" for true
+        });
+    });
+
+    // Criação do arquivo JSON
+    const blob = new Blob([JSON.stringify(selecoes, null, 2)], { type: 'application/json' });
+    const dataAtual = new Date().toISOString().split('T')[0];
+    const nomeArquivo = `checklist_pecas_${dataAtual}.json`;
+
+    // Salvar o arquivo
+    saveAs(blob, nomeArquivo);
+    showToast('Seleções salvas com sucesso!');
+}
+
+function importarSelecoes(input) {
+    const file = input.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            try {
+                const selecoes = JSON.parse(e.target.result);
+
+                // Validação da estrutura do JSON
+                if (!selecoes || !selecoes.veiculo || !Array.isArray(selecoes.pecas)) {
+                    throw new Error('Formato inválido de arquivo.');
+                }
+
+                // Preencher as informações do veículo
+                document.getElementById('vehicle-name').value = selecoes.veiculo.nome || 'Não informado';
+                document.getElementById('vehicle-year').value = selecoes.veiculo.ano || 'Não informado';
+
+                // Atualizar a tabela de peças
+                customPecas = new Set(selecoes.pecas.map(p => p.nome));
+                updateChecklistTable();
+
+                // Atualizar os estados das peças na tabela
+                const rows = document.querySelectorAll('#checklist-body tr');
+                let novoCompletedItems = 0;
+
                 rows.forEach(row => {
-                    if (yPos > 270) {
-                        doc.addPage();
-                        // Fundo preto no topo da nova página
-                        doc.setFillColor(0, 0, 0);
-                        doc.rect(0, 0, 210, 25, 'F');
-                        
-                        // Cabeçalho da nova página
-                        doc.setFont("helvetica", "bold");
-                        doc.setFontSize(16);
-                        doc.setTextColor(255, 255, 255);
-                        doc.text("Checklist de Peças - Continuação", 20, 17);
-                        yPos = 40;
-                    }
-                    
                     const peca = row.cells[0].textContent;
                     const select = row.cells[1].querySelector('select');
-                    const possui = select.value;
-                    const observacao = select.getAttribute('data-observacao') || 'Sem observação';
-                    
-                    // Nome da peça
-                    doc.setFont("helvetica", "bold");
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(peca, 20, yPos);
-                    
-                    // Status (Possui/Não possui)
-                    if (possui === 'Sim') {
-                        doc.setTextColor(0, 220, 130); // Verde
-                        doc.text("Possui", 140, yPos);
+                    const itemImportado = selecoes.pecas.find(p => p.nome === peca);
+
+                    if (itemImportado) {
+                        // Preencher o valor com base no JSON
+                        select.value = itemImportado.possui ? 'Sim' : 'Não';
+
+                        if (itemImportado.possui && itemImportado.observacao) {
+                            select.setAttribute('data-observacao', itemImportado.observacao);
+                        } else {
+                            select.removeAttribute('data-observacao');
+                        }
+
+                        // Aplicar classes visuais
+                        select.classList.remove('status-possui', 'status-nao-possui');
+                        select.classList.add(itemImportado.possui ? 'status-possui' : 'status-nao-possui');
+
+                        if (itemImportado.possui) {
+                            novoCompletedItems++;
+                        }
                     } else {
-                        doc.setTextColor(255, 59, 48); // Vermelho
-                        doc.text("Não Possui", 140, yPos);
+                        // Para peças que não estão no JSON, marcar como "Não Possui"
+                        select.value = 'Não';
+                        select.removeAttribute('data-observacao');
+                        select.classList.remove('status-possui');
+                        select.classList.add('status-nao-possui');
                     }
-                    
-                    // Observação em cinza e com recuo
-                    doc.setFont("helvetica", "normal");
-                    doc.setFontSize(10);
-                    doc.setTextColor(128, 128, 128);
-                    yPos += 6;
-                    const obsText = `Observação: ${observacao}`;
-                    const splitObs = doc.splitTextToSize(obsText, 150);
-                    splitObs.forEach(line => {
-                        doc.text(25, yPos, line);
-                        yPos += 5;
-                    });
-                    
-                    yPos += 8; // Espaço extra entre itens
                 });
-                
-                // Rodapé
-                const pageCount = doc.internal.getNumberOfPages();
-                for(let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    doc.setFontSize(10);
-                    doc.setTextColor(128, 128, 128);
-                    doc.text(`Página ${i} de ${pageCount}`, 20, 290);
-                    doc.text('Skina Ecopeças', doc.internal.pageSize.width - 40, 290);
-                }
-                
-                doc.save('checklist_pecas.pdf');
-                showToast('PDF gerado com sucesso!');
-                
-                doc.save('relatorio_checklist.pdf');
-                showToast('Relatório PDF baixado com sucesso!');
+
+                completedItems = novoCompletedItems;
+                updateProgress();
+                showToast('Seleções importadas com sucesso!');
+            } catch (error) {
+                console.error('Erro ao importar:', error);
+                showToast('Erro ao importar arquivo. Verifique o formato.');
             }
-        }
+        };
 
-        // Inicializa a barra de progresso
-        updateProgress();
+        reader.readAsText(file);
+    }
+}
 
-        // Inicializa animações quando a página carrega
-        document.addEventListener('DOMContentLoaded', () => {
+
+        
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateChecklistTable();
             const header = document.querySelector('.header');
             const buttons = document.querySelectorAll('button, .button');
             
