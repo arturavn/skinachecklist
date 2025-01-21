@@ -519,9 +519,64 @@
             background: var(--primary);
             border-radius: 3px;
         }
+        .scroll-button {
+    position: fixed;
+    right: 2rem;
+    padding: 1rem;
+    background: var(--primary);
+    color: var(--background);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    box-shadow: 0 4px 12px rgba(0, 220, 130, 0.2);
+    z-index: 1000;
+}
+
+.scroll-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 220, 130, 0.3);
+}
+
+.scroll-top {
+    bottom: 7rem;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.scroll-bottom {
+    bottom: 2rem;
+}
+
+.scroll-button.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Arrow icons */
+.scroll-button::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-left: 3px solid var(--background);
+    border-bottom: 3px solid var(--background);
+    transform: rotate(135deg); /* Points up */
+}
+
+.scroll-bottom::before {
+    transform: rotate(-45deg); /* Points down */
+}
     </style>
 </head>
 <body>
+    <button id="scrollTop" class="scroll-button scroll-top" aria-label="Scroll to top"></button>
+<button id="scrollBottom" class="scroll-button scroll-bottom" aria-label="Scroll to bottom"></button>
+
     <div class="progress-bar"></div>
     <div class="container">
         <div class="header">
@@ -592,7 +647,7 @@
 
     <script>
         const pecas = [
-'capô',
+            'capô',
 'Farol Direito',
 'Farol Esquerdo',
 'Lanterna Direita',
@@ -877,7 +932,7 @@
 'Engate',
 'Estribos Laterais',
 
-];
+        ];
 
 let customPecas = new Set(pecas);
 const progressBar = document.querySelector('.progress-bar');
@@ -1281,6 +1336,34 @@ function importarSelecoes(input) {
                 button.style.animationDelay = `${index * 0.1}s`;
             });
         });
+        // Scroll button functionality
+const scrollTopButton = document.getElementById('scrollTop');
+const scrollBottomButton = document.getElementById('scrollBottom');
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+function scrollToBottom() {
+    window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+function toggleScrollButton() {
+    if (window.pageYOffset > 300) {
+        scrollTopButton.classList.add('visible');
+    } else {
+        scrollTopButton.classList.remove('visible');
+    }
+}
+
+scrollTopButton.addEventListener('click', scrollToTop);
+scrollBottomButton.addEventListener('click', scrollToBottom);
+window.addEventListener('scroll', toggleScrollButton);
     </script>
 </body>
-</html>
