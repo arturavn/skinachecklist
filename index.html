@@ -1080,53 +1080,18 @@ function updateChecklistTable() {
             updateProgress();
         }
 
-        function gerarRelatorio() {
-    const relatorioDiv = document.getElementById('relatorio');
-    const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
-    const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
-    
-    let relatorioHTML = `
-        <h2>Relatório de Checklist</h2>
-        <div>
-            <p><strong>Veículo:</strong> ${vehicleName}</p>
-            <p><strong>Ano:</strong> ${vehicleYear}</p>
-        </div>
-        <ul>
-    `;
-
-    const rows = document.querySelectorAll('#checklist-body tr');
-    rows.forEach(row => {
-        const peca = row.cells[0].textContent;
-        const select = row.cells[1].querySelector('select');
-        const possui = select.value === 'Sim' ? 'Possui' : 'Não Possui';
-        const observacao = select.getAttribute('data-observacao') || 'Sem observação';
-
-        relatorioHTML += `
-            <li>
-                <strong>${peca}:</strong> ${possui}
-                ${possui === 'Possui' ? ` - Observação: ${observacao}` : ''}
-            </li>
-        `;
-    });
-
-    relatorioHTML += '</ul>';
-    relatorioDiv.innerHTML = relatorioHTML;
-    relatorioDiv.scrollIntoView({ behavior: 'smooth' });
-    showToast('Relatório gerado com sucesso!');
-}
-
-function baixarRelatorio(tipo) {
+        function baixarRelatorio(tipo) {
     if (tipo === 'pdf') {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
         // Configuração de cabeçalho
         function addHeader(pageNumber) {
-            doc.setFillColor(0, 0, 0); // Fundo preto
+            doc.setFillColor(0, 0, 0);
             doc.rect(0, 0, 210, 25, 'F');
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(18);
-            doc.setTextColor(255, 255, 255); // Texto branco
+            doc.setTextColor(255, 255, 255);
             doc.text('Checklist de Peças', 10, 15);
             doc.setFontSize(10);
             doc.setTextColor(200, 200, 200);
@@ -1137,17 +1102,16 @@ function baixarRelatorio(tipo) {
         function addFooter(pageNumber) {
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
-            doc.setTextColor(128, 128, 128); // Cinza
+            doc.setTextColor(128, 128, 128);
             doc.text('Skina Ecopeças', 10, 290);
             doc.text(`Página ${pageNumber}`, 180, 290);
         }
 
-        // Dados do veículo
         const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
         const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
         const rows = document.querySelectorAll('#checklist-body tr');
 
-        let yPos = 30; // Posição inicial do texto
+        let yPos = 30;
         let pageNumber = 1;
 
         addHeader(pageNumber);
@@ -1155,7 +1119,7 @@ function baixarRelatorio(tipo) {
         // Dados do veículo no início do PDF
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0); // Preto
+        doc.setTextColor(0, 0, 0);
         doc.text(`Veículo: ${vehicleName}`, 10, yPos);
         doc.text(`Ano: ${vehicleYear}`, 10, yPos + 10);
         yPos += 20;
@@ -1167,7 +1131,6 @@ function baixarRelatorio(tipo) {
             const possui = select.value === 'Sim' ? 'Possui' : 'Não Possui';
             const observacao = select.getAttribute('data-observacao') || 'Sem observação';
 
-            // Controle de quebra de página
             if (yPos > 270) {
                 pageNumber++;
                 doc.addPage();
@@ -1175,36 +1138,33 @@ function baixarRelatorio(tipo) {
                 addHeader(pageNumber);
             }
 
-            // Nome da peça
+            // Nome da peça (mais à esquerda)
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0); // Preto
+            doc.setTextColor(0, 0, 0);
             doc.text(`Peça: ${peca}`, 10, yPos);
 
-            // Status da peça
+            // Status (mais à direita, em uma posição fixa)
             if (possui === 'Possui') {
                 doc.setTextColor(0, 220, 130); // Verde
             } else {
                 doc.setTextColor(255, 59, 48); // Vermelho
             }
-            doc.text(`Status: ${possui}`, 100, yPos);
+            doc.text(`Status: ${possui}`, 150, yPos); // Ajustado para 150 (mais à direita)
 
             // Observação
             if (possui === 'Possui') {
                 doc.setFont('helvetica', 'italic');
                 doc.setFontSize(10);
-                doc.setTextColor(128, 128, 128); // Cinza
-                doc.text(`Observação: ${observacao}`, 10, yPos + 10);
-                yPos += 10;
+                doc.setTextColor(128, 128, 128);
+                doc.text(`Observação: ${observacao}`, 10, yPos + 7);
+                yPos += 7;
             }
 
             yPos += 10;
         });
 
-        // Rodapé final
         addFooter(pageNumber);
-
-        // Salvar PDF
         doc.save('relatorio_checklist.pdf');
         showToast('PDF gerado com sucesso!');
     }
