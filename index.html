@@ -1325,5 +1325,116 @@ function toggleScrollButton() {
 scrollTopButton.addEventListener('click', scrollToTop);
 scrollBottomButton.addEventListener('click', scrollToBottom);
 window.addEventListener('scroll', toggleScrollButton);
+function gerarRelatorio() {
+    const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
+    const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
+    const rows = document.querySelectorAll('#checklist-body tr');
+    const relatorioDiv = document.getElementById('relatorio');
+    
+    let html = `
+        <div class="relatorio-container" style="padding: 2rem;">
+            <h2 style="color: var(--text); font-size: 2rem; margin-bottom: 2rem;">Relatório Detalhado do Veículo</h2>
+            
+            <div class="vehicle-info" style="margin-bottom: 2rem; background: var(--surface); padding: 1.5rem; border-radius: 12px;">
+                <h3 style="color: var(--text); font-size: 1.5rem; margin-bottom: 1rem;">Informações do Veículo</h3>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <p style="color: var(--text); margin: 0;">
+                        <strong style="color: var(--primary); display: inline-block; min-width: 80px;">Modelo:</strong> ${vehicleName}
+                    </p>
+                    <p style="color: var(--text); margin: 0;">
+                        <strong style="color: var(--primary); display: inline-block; min-width: 80px;">Ano:</strong> ${vehicleYear}
+                    </p>
+                </div>
+            </div>
+
+            <div class="parts-status" style="margin-bottom: 2rem;">
+                <h3 style="color: var(--text); font-size: 1.5rem;">Status das Peças</h3>
+                <div class="status-grid" style="display: grid; gap: 1rem;">`;
+
+    // Separar peças por status
+    const pecasPossuidas = [];
+    const pecasNaoPossuidas = [];
+
+    rows.forEach(row => {
+        const peca = row.cells[0].textContent;
+        const select = row.cells[1].querySelector('select');
+        const possui = select.value === 'Sim';
+        const observacao = select.getAttribute('data-observacao');
+        
+        if (possui) {
+            pecasPossuidas.push({ peca, observacao });
+        } else {
+            pecasNaoPossuidas.push({ peca });
+        }
+    });
+
+    // Seção de peças possuídas
+    if (pecasPossuidas.length > 0) {
+        html += `
+            <div class="possui-section" style="background: var(--surface); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                <h4 style="color: var(--success); margin-bottom: 1rem;">Peças Disponíveis (${pecasPossuidas.length})</h4>
+                <div style="display: grid; gap: 0.5rem;">`;
+        
+        pecasPossuidas.forEach(({ peca, observacao }) => {
+            html += `
+                <div style="background: var(--surface-hover); padding: 1rem; border-radius: 8px;">
+                    <p style="color: var(--text); margin: 0;">
+                        <strong>${peca}</strong>
+                    </p>
+                    ${observacao ? `<p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.9rem;">Observação: ${observacao}</p>` : ''}
+                </div>`;
+        });
+        
+        html += `</div></div>`;
+    }
+
+    // Seção de peças não possuídas
+    if (pecasNaoPossuidas.length > 0) {
+        html += `
+            <div class="nao-possui-section" style="background: var(--surface); padding: 1.5rem; border-radius: 12px;">
+                <h4 style="color: #FF3B30; margin-bottom: 1rem;">Peças Indisponíveis (${pecasNaoPossuidas.length})</h4>
+                <div style="display: grid; gap: 0.5rem;">`;
+        
+        pecasNaoPossuidas.forEach(({ peca }) => {
+            html += `
+                <div style="background: var(--surface-hover); padding: 1rem; border-radius: 8px;">
+                    <p style="color: var(--text); margin: 0;">${peca}</p>
+                </div>`;
+        });
+        
+        html += `</div></div>`;
+    }
+
+    // Estatísticas
+    const totalPecas = rows.length;
+    const percentualConclusao = ((pecasPossuidas.length / totalPecas) * 100).toFixed(1);
+
+    html += `
+            </div>
+        </div>
+        
+        <div class="estatisticas" style="background: var(--surface); padding: 1.5rem; border-radius: 12px; margin-top: 2rem;">
+            <h3 style="color: var(--text); font-size: 1.5rem; margin-bottom: 1rem;">Resumo Geral</h3>
+            <div style="display: grid; gap: 0.5rem;">
+                <p style="color: var(--text); margin: 0;">
+                    <strong style="color: var(--primary);">Total de Peças:</strong> ${totalPecas}
+                </p>
+                <p style="color: var(--text); margin: 0;">
+                    <strong style="color: var(--success);">Peças Disponíveis:</strong> ${pecasPossuidas.length}
+                </p>
+                <p style="color: var(--text); margin: 0;">
+                    <strong style="color: #FF3B30;">Peças Indisponíveis:</strong> ${pecasNaoPossuidas.length}
+                </p>
+                <p style="color: var(--text); margin: 0;">
+                    <strong style="color: var(--primary);">Percentual de Conclusão:</strong> ${percentualConclusao}%
+                </p>
+            </div>
+        </div>
+    `;
+
+    relatorioDiv.innerHTML = html;
+    relatorioDiv.scrollIntoView({ behavior: 'smooth' });
+    showToast('Relatório gerado com sucesso!');
+}
     </script>
 </body>
