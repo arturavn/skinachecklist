@@ -571,6 +571,29 @@
 .scroll-bottom::before {
     transform: rotate(-45deg); /* Points down */
 }
+.search-container {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+}
+
+.highlight-row {
+    background: rgba(0, 220, 130, 0.2) !important;
+    transition: background-color 0.3s ease;
+}
+
+/* Ajuste no estilo da tabela para scroll suave */
+.checklist-container {
+    scroll-behavior: smooth;
+}
+
+.search-results {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
     </style>
 </head>
 <body>
@@ -598,6 +621,19 @@
                 <input type="number" id="vehicle-year" placeholder="Ex: 2020" min="1900" max="2025" required>
             </div>
         </div>
+        <div class="search-container fade-in">
+            <div class="input-group">
+                <label for="search-checklist">Pesquisar Peça</label>
+                <input 
+                    type="text" 
+                    id="search-checklist" 
+                    placeholder="Digite o nome da peça..." 
+                    onkeyup="searchAndHighlight()"
+                >
+            </div>
+            <div id="search-results" class="search-results"></div>
+        </div>
+        
 
         <div class="checklist-container slide-up">
             <table>
@@ -1436,5 +1472,57 @@ function gerarRelatorio() {
     relatorioDiv.scrollIntoView({ behavior: 'smooth' });
     showToast('Relatório gerado com sucesso!');
 }
+function searchAndHighlight() {
+    const searchInput = document.getElementById('search-checklist');
+    const searchTerm = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll('#checklist-body tr');
+    const searchResults = document.getElementById('search-results');
+    
+    // Remove todos os highlights anteriores
+    rows.forEach(row => {
+        row.classList.remove('highlight-row');
+    });
+    
+    if (searchTerm.length < 2) {
+        searchResults.textContent = '';
+        return;
+    }
+    
+    let matchCount = 0;
+    let firstMatch = null;
+
+    // Procura por correspondências
+    rows.forEach(row => {
+        const pecaCell = row.cells[0];
+        const pecaText = pecaCell.textContent.toLowerCase();
+        
+        if (pecaText.includes(searchTerm)) {
+            row.classList.add('highlight-row');
+            matchCount++;
+            if (!firstMatch) {
+                firstMatch = row;
+            }
+        }
+    });
+    
+    // Atualiza o contador de resultados
+    if (matchCount > 0) {
+        searchResults.textContent = `${matchCount} ${matchCount === 1 ? 'peça encontrada' : 'peças encontradas'}`;
+        // Rola até a primeira correspondência
+        firstMatch.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    } else {
+        searchResults.textContent = 'Nenhuma peça encontrada';
+    }
+}
+
+// Adicione um listener para tecla Enter que também ativa a pesquisa
+document.getElementById('search-checklist').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchAndHighlight();
+    }
+});
     </script>
 </body>
