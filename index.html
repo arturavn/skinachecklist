@@ -252,21 +252,22 @@
         }
 
         select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            color: var(--text);
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            padding-right: 2.5rem;
-        }
+    width: 100%;
+    min-width: 120px;
+    padding: 0.75rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    padding-right: 2rem;
+}
 
         select:hover {
             border-color: var(--primary);
@@ -461,7 +462,26 @@
             .vehicle-info {
                 grid-template-columns: 1fr;
             }
-        }
+            select {
+        font-size: 0.85rem;
+        padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+    }
+
+    td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    table td:last-child {
+        min-width: 110px;
+        width: 40%;
+    }
+
+    table td:first-child {
+        width: 60%;
+    }
+}
+        
+        
 
         @keyframes slideUp {
             from {
@@ -503,9 +523,9 @@
         }
 
         tr {
-            animation: slideUp 0.3s ease-out forwards;
-            opacity: 0;
-        }
+    animation: none;
+    opacity: 1;
+}
 
         ::-webkit-scrollbar {
             width: 6px;
@@ -577,6 +597,7 @@
     border-radius: 12px;
     margin-bottom: 1rem;
     border: 1px solid var(--border);
+    
 }
 
 .highlight-row {
@@ -586,13 +607,29 @@
 
 /* Ajuste no estilo da tabela para scroll suave */
 .checklist-container {
-    scroll-behavior: smooth;
+    background: var(--surface);
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+    border: 1px solid var(--border);
+    animation: fadeIn 0.3s ease-out forwards;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .search-results {
     margin-top: 0.5rem;
     font-size: 0.9rem;
     color: var(--text-secondary);
+   
 }
     </style>
 </head>
@@ -1065,56 +1102,61 @@ function removePiece(peca) {
 
 function updateChecklistTable() {
     const checklistBody = document.getElementById('checklist-body');
-    checklistBody.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+    
     totalItems = customPecas.size;
     completedItems = 0;
-    Array.from(customPecas).sort().forEach((peca, index) => {
-                const row = document.createElement('tr');
-                row.style.animationDelay = `${index * 0.05}s`;
-                
-                const pecaCell = document.createElement('td');
-                pecaCell.textContent = peca;
-                
-                const possuiCell = document.createElement('td');
-                const select = document.createElement('select');
-                
-                const optionNao = document.createElement('option');
-                optionNao.value = 'Nao';
-                optionNao.textContent = 'Não Possui';
-                
-                const optionSim = document.createElement('option');
-                optionSim.value = 'Sim';
-                optionSim.textContent = 'Possui';
-                
-                select.appendChild(optionNao);
-                select.appendChild(optionSim);
 
-                select.addEventListener('change', function() {
-    if (this.value === 'Sim') {
-        const observacao = prompt(`Insira uma observação para ${peca}:`);
-        this.setAttribute('data-observacao', observacao || 'Sem observação');
-        this.classList.add('status-possui');
-        this.classList.remove('status-nao-possui');
-        completedItems++;
-    } else {
-        this.removeAttribute('data-observacao');
-        this.classList.add('status-nao-possui');
-        this.classList.remove('status-possui');
-        completedItems = Math.max(0, completedItems - 1);
-    }
-    updateProgress();
-});
+    const pecasOrdenadas = Array.from(customPecas).sort();
+    
+    pecasOrdenadas.forEach(peca => {
+        const row = document.createElement('tr');
+        
+        const pecaCell = document.createElement('td');
+        pecaCell.textContent = peca;
+        
+        const possuiCell = document.createElement('td');
+        const select = document.createElement('select');
+        
+        const optionNao = document.createElement('option');
+        optionNao.value = 'Nao';
+        optionNao.textContent = 'Não Possui';
+        
+        const optionSim = document.createElement('option');
+        optionSim.value = 'Sim';
+        optionSim.textContent = 'Possui';
+        
+        select.appendChild(optionNao);
+        select.appendChild(optionSim);
 
-
-                select.classList.add('status-nao-possui');
-                possuiCell.appendChild(select);
-                row.appendChild(pecaCell);
-                row.appendChild(possuiCell);
-                checklistBody.appendChild(row);
-            });
-            
+        select.addEventListener('change', function() {
+            if (this.value === 'Sim') {
+                const observacao = prompt(`Insira uma observação para ${peca}:`);
+                this.setAttribute('data-observacao', observacao || 'Sem observação');
+                this.classList.add('status-possui');
+                this.classList.remove('status-nao-possui');
+                completedItems++;
+            } else {
+                this.removeAttribute('data-observacao');
+                this.classList.add('status-nao-possui');
+                this.classList.remove('status-possui');
+                completedItems = Math.max(0, completedItems - 1);
+            }
             updateProgress();
-        }
+        });
+
+        select.classList.add('status-nao-possui');
+        possuiCell.appendChild(select);
+        row.appendChild(pecaCell);
+        row.appendChild(possuiCell);
+        fragment.appendChild(row);
+    });
+    
+    checklistBody.innerHTML = '';
+    checklistBody.appendChild(fragment);
+    
+    updateProgress();
+}
 
         function baixarRelatorio(tipo) {
     if (tipo === 'pdf') {
@@ -1478,12 +1520,11 @@ function searchAndHighlight() {
     const rows = document.querySelectorAll('#checklist-body tr');
     const searchResults = document.getElementById('search-results');
     
-    // Remove todos os highlights anteriores
-    rows.forEach(row => {
-        row.classList.remove('highlight-row');
-    });
-    
-    if (searchTerm.length < 2) {
+    // Se o termo de busca estiver vazio (incluindo espaços), mostra todas as linhas
+    if (searchTerm.trim().length < 2) {
+        rows.forEach(row => {
+            row.style.display = ''; // Restaura a exibição padrão
+        });
         searchResults.textContent = '';
         return;
     }
@@ -1497,11 +1538,13 @@ function searchAndHighlight() {
         const pecaText = pecaCell.textContent.toLowerCase();
         
         if (pecaText.includes(searchTerm)) {
-            row.classList.add('highlight-row');
+            row.style.display = ''; // Mostra a linha que corresponde
             matchCount++;
             if (!firstMatch) {
                 firstMatch = row;
             }
+        } else {
+            row.style.display = 'none'; // Esconde a linha que não corresponde
         }
     });
     
@@ -1509,16 +1552,20 @@ function searchAndHighlight() {
     if (matchCount > 0) {
         searchResults.textContent = `${matchCount} ${matchCount === 1 ? 'peça encontrada' : 'peças encontradas'}`;
         // Rola até a primeira correspondência
-        firstMatch.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-        });
+        if (firstMatch) {
+            firstMatch.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
     } else {
         searchResults.textContent = 'Nenhuma peça encontrada';
     }
 }
 
-// Adicione um listener para tecla Enter que também ativa a pesquisa
+// Adiciona um listener para atualizar a pesquisa em tempo real
+document.getElementById('search-checklist').addEventListener('input', searchAndHighlight);
+// Mantém o listener do Enter também
 document.getElementById('search-checklist').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         searchAndHighlight();
