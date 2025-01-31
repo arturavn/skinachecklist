@@ -719,6 +719,37 @@
     </div>
 
     <script>
+
+        // Variable to track if there are unsaved changes
+let hasUnsavedChanges = false;
+
+// Function to set unsaved changes flag
+function setUnsavedChanges() {
+    hasUnsavedChanges = true;
+}
+
+// Function to clear unsaved changes flag
+function clearUnsavedChanges() {
+    hasUnsavedChanges = false;
+}
+
+// Add event listeners to track changes
+document.getElementById('vehicle-name').addEventListener('input', setUnsavedChanges);
+document.getElementById('vehicle-year').addEventListener('input', setUnsavedChanges);
+document.getElementById('checklist-body').addEventListener('change', setUnsavedChanges);
+
+// Clear unsaved changes when saving
+document.querySelector('button[onclick="exportarSelecoes()"]').addEventListener('click', clearUnsavedChanges);
+
+// Add beforeunload event listener
+window.addEventListener('beforeunload', function(e) {
+    if (hasUnsavedChanges) {
+        // Standard message (browsers may show their own message instead)
+        const message = 'Você tem alterações não salvas. Deseja realmente sair da página?';
+        e.returnValue = message; // Standard
+        return message; // For older browsers
+    }
+});
         const pecas = [
             'capô',
 'Farol Direito',
@@ -1129,7 +1160,12 @@ function updateChecklistTable() {
         select.appendChild(optionNao);
         select.appendChild(optionSim);
 
+        let isChanging = false; // Flag para controlar o evento
+
         select.addEventListener('change', function() {
+            if (isChanging) return; // Se já está processando uma mudança, retorna
+            isChanging = true; // Marca que está processando
+
             if (this.value === 'Sim') {
                 const observacao = prompt(`Insira uma observação para ${peca}:`);
                 this.setAttribute('data-observacao', observacao || 'Sem observação');
@@ -1143,6 +1179,8 @@ function updateChecklistTable() {
                 completedItems = Math.max(0, completedItems - 1);
             }
             updateProgress();
+            setUnsavedChanges();
+            isChanging = false; // Marca que terminou o processamento
         });
 
         select.classList.add('status-nao-possui');
@@ -1158,96 +1196,183 @@ function updateChecklistTable() {
     updateProgress();
 }
 
-        function baixarRelatorio(tipo) {
+function baixarRelatorio(tipo) {
     if (tipo === 'pdf') {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        // Configuração de cabeçalho
-        function addHeader(pageNumber) {
-            doc.setFillColor(0, 0, 0);
-            doc.rect(0, 0, 210, 25, 'F');
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(18);
-            doc.setTextColor(255, 255, 255);
-            doc.text('Checklist de Peças', 10, 15);
-            doc.setFontSize(10);
-            doc.setTextColor(200, 200, 200);
-            doc.text(`Página ${pageNumber}`, 180, 15);
-        }
+        // Carregar a logo
+        const logo = new Image();
+        logo.src = 'LOGO FUNDO TRANSPARENTE.png';
 
-        // Configuração de rodapé
-        function addFooter(pageNumber) {
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            doc.setTextColor(128, 128, 128);
-            doc.text('Skina Ecopeças', 10, 290);
-            doc.text(`Página ${pageNumber}`, 180, 290);
-        }
+        logo.onload = function() {
+            // Configurações de estilo
+            const cores = {
+                primaria: [0, 220, 130],    // Verde (#00DC82)
+                secundaria: [17, 17, 17],    // Cinza escuro (#111111)
+                texto: [51, 51, 51],         // Cinza para texto
+                sucesso: [0, 220, 130],      // Verde
+                erro: [255, 59, 48]          // Vermelho
+            };
 
-        const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
-        const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
-        const rows = document.querySelectorAll('#checklist-body tr');
-
-        let yPos = 30;
-        let pageNumber = 1;
-
-        addHeader(pageNumber);
-
-        // Dados do veículo no início do PDF
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Veículo: ${vehicleName}`, 10, yPos);
-        doc.text(`Ano: ${vehicleYear}`, 10, yPos + 10);
-        yPos += 20;
-
-        // Listagem das peças
-        rows.forEach(row => {
-            const peca = row.cells[0].textContent;
-            const select = row.cells[1].querySelector('select');
-            const possui = select.value === 'Sim' ? 'Possui' : 'Não Possui';
-            const observacao = select.getAttribute('data-observacao') || 'Sem observação';
-
-            if (yPos > 270) {
-                pageNumber++;
-                doc.addPage();
-                yPos = 30;
-                addHeader(pageNumber);
+            // Função para desenhar retângulo com bordas arredondadas
+            function roundedRect(x, y, w, h, r, cor) {
+                doc.setFillColor(cor[0], cor[1], cor[2]);
+                doc.roundedRect(x, y, w, h, r, r, 'F');
             }
 
-            // Nome da peça (mais à esquerda)
+            // Função para criar cabeçalho
+            function addHeader(pageNumber) {
+                // Fundo do cabeçalho
+                roundedRect(0, 0, doc.internal.pageSize.width, 40, 0, cores.secundaria);
+                
+                // Adicionar a logo
+                doc.addImage(logo, 'PNG', 10, 5, 30, 30);
+
+                // Título
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(20);
+                doc.setTextColor(255, 255, 255);
+                doc.text('Checklist de Peças', 45, 23);
+
+                // Data e página
+                doc.setFontSize(9);
+                doc.setTextColor(180, 180, 180);
+                const dataAtual = new Date().toLocaleDateString('pt-BR');
+                doc.text(`Data: ${dataAtual} | Página ${pageNumber}`, 
+                    doc.internal.pageSize.width - 20, 23, { align: 'right' });
+            }
+
+            // Função para criar rodapé
+            function addFooter() {
+                const footerHeight = 20;
+                const pageBottom = doc.internal.pageSize.height;
+                
+                // Linha superior do rodapé
+                doc.setDrawColor(230, 230, 230);
+                doc.line(10, pageBottom - footerHeight, 
+                    doc.internal.pageSize.width - 10, pageBottom - footerHeight);
+
+                // Texto do rodapé
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text('Skina Ecopeças - Relatório gerado automaticamente', 10, 
+                    pageBottom - 10);
+            }
+
+            // Função para adicionar seção
+            function addSection(title, y, cor = cores.primaria) {
+                doc.setFillColor(cor[0], cor[1], cor[2]);
+                doc.roundedRect(10, y, doc.internal.pageSize.width - 20, 7, 2, 2, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);  // Aumentei o tamanho da fonte
+                doc.setTextColor(255, 255, 255);
+                doc.text(title, 15, y + 5);
+                return y + 12;
+            }
+
+            // Início da geração do PDF
+            let pageNumber = 1;
+            let yPos = 45;
+            addHeader(pageNumber);
+
+            // Informações do veículo
+            const vehicleName = document.getElementById('vehicle-name').value || 'Não informado';
+            const vehicleYear = document.getElementById('vehicle-year').value || 'Não informado';
+
+            roundedRect(10, yPos, doc.internal.pageSize.width - 20, 25, 3, [245, 245, 245]);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Peça: ${peca}`, 10, yPos);
+            doc.setTextColor(...cores.texto);
+            doc.text('Informações do Veículo', 15, yPos + 7);
+            doc.setFont('helvetica', 'bold'); // Mantém negrito
+            doc.setFontSize(11);
+            doc.text(`Modelo: ${vehicleName}`, 15, yPos + 17);
+            doc.text(`Ano: ${vehicleYear}`, 100, yPos + 17);
 
-            // Status (mais à direita, em uma posição fixa)
-            if (possui === 'Possui') {
-                doc.setTextColor(0, 220, 130); // Verde
-            } else {
-                doc.setTextColor(255, 59, 48); // Vermelho
-            }
-            doc.text(`Status: ${possui}`, 150, yPos); // Ajustado para 150 (mais à direita)
+            yPos += 35;
 
-            // Observação
-            if (possui === 'Possui') {
-                doc.setFont('helvetica', 'italic');
-                doc.setFontSize(10);
-                doc.setTextColor(128, 128, 128);
-                doc.text(`Observação: ${observacao}`, 10, yPos + 7);
-                yPos += 7;
-            }
+            // Lista de peças
+            yPos = addSection('Peças Disponíveis', yPos, cores.sucesso);
 
-            yPos += 10;
-        });
+            doc.setFont('helvetica', 'bold'); // Sempre negrito
+            doc.setFontSize(11); // Fonte maior
 
-        addFooter(pageNumber);
-        doc.save('relatorio_checklist.pdf');
-        showToast('PDF gerado com sucesso!');
+            const rows = document.querySelectorAll('#checklist-body tr');
+            rows.forEach(row => {
+                const peca = row.cells[0].textContent;
+                const select = row.cells[1].querySelector('select');
+                const possui = select.value === 'Sim';
+                const observacao = select.getAttribute('data-observacao');
+
+                if (possui) {
+                    if (yPos > doc.internal.pageSize.height - 40) {
+                        addFooter();
+                        doc.addPage();
+                        pageNumber++;
+                        yPos = 45;
+                        addHeader(pageNumber);
+                    }
+
+                    roundedRect(15, yPos, doc.internal.pageSize.width - 30, 12, 2, [250, 250, 250]);
+                    doc.setTextColor(...cores.texto);
+                    doc.text(`• ${peca}`, 20, yPos + 8);
+                    
+                    if (observacao) {
+                        yPos += 12;
+                        doc.setTextColor(130, 130, 130);
+                        doc.setFontSize(9); // Fonte menor para observação
+                        doc.setFont('helvetica', 'bold'); // Mantém negrito mesmo na observação
+                        doc.text(`Observação: ${observacao}`, 25, yPos + 8);
+                        doc.setFontSize(11); // Volta ao tamanho normal
+                    }
+
+                    yPos += 15;
+                }
+            });
+
+            // Peças faltantes
+            yPos = addSection('Peças Indisponíveis', yPos, cores.erro);
+
+            doc.setFont('helvetica', 'bold'); // Mantém negrito
+            doc.setFontSize(11); // Mantém fonte maior
+
+            rows.forEach(row => {
+                const peca = row.cells[0].textContent;
+                const select = row.cells[1].querySelector('select');
+                const possui = select.value === 'Sim';
+
+                if (!possui) {
+                    if (yPos > doc.internal.pageSize.height - 40) {
+                        addFooter();
+                        doc.addPage();
+                        pageNumber++;
+                        yPos = 45;
+                        addHeader(pageNumber);
+                    }
+
+                    roundedRect(15, yPos, doc.internal.pageSize.width - 30, 12, 2, [250, 250, 250]);
+                    doc.setTextColor(...cores.texto);
+                    doc.text(`• ${peca}`, 20, yPos + 8);
+                    yPos += 15;
+                }
+            });
+
+            // Adicionar rodapé na última página
+            addFooter();
+
+            // Salvar o PDF
+            const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+            doc.save(`checklist_${vehicleName}_${dataAtual}.pdf`);
+            showToast('PDF gerado com sucesso!');
+        };
+
+        logo.onerror = function() {
+            console.error('Erro ao carregar a logo');
+            showToast('Erro ao carregar a logo, gerando PDF sem logo...');
+        };
     }
 }
-
 
 
 function exportarSelecoes() {
@@ -1353,6 +1478,18 @@ function importarSelecoes(input) {
                 console.error('Erro ao importar:', error);
                 showToast('Erro ao importar arquivo. Verifique o formato.');
             }
+            reader.onload = function (e) {
+        try {
+            // ... existing code ...
+            
+            updateProgress();
+            showToast('Seleções importadas com sucesso!');
+            clearUnsavedChanges(); // Add this line
+        } catch (error) {
+            console.error('Erro ao importar:', error);
+            showToast('Erro ao importar arquivo. Verifique o formato.');
+        }
+    };
         };
 
         reader.readAsText(file);
