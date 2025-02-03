@@ -636,9 +636,7 @@
 <body>
     <button id="scrollTop" class="scroll-button scroll-top" aria-label="Scroll to top"></button>
 <button id="scrollBottom" class="scroll-button scroll-bottom" aria-label="Scroll to bottom"></button>
-<div id="ios-warning" style="display: none; position: fixed; bottom: 20px; left: 20px; background: red; color: white; padding: 10px; border-radius: 5px; z-index: 9999;">
-    Existem alterações não salvas
-</div>
+
 
     <div class="progress-bar"></div>
     <div class="container">
@@ -724,95 +722,161 @@
     <script>
 
  // Detectar se é um dispositivo iOS
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream || 
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-// Variable to track if there are unsaved changes
+// Variável para rastrear mudanças não salvas
 let hasUnsavedChanges = false;
 
-// Function to set unsaved changes flag
+// Elementos que precisam ser monitorados para mudanças
+const elementsToTrack = [
+    'vehicle-name',
+    'vehicle-year',
+    'checklist-body'
+];
+
+// Função para marcar que existem mudanças não salvas
 function setUnsavedChanges() {
     hasUnsavedChanges = true;
+    updateWarningDisplay();
 }
 
-// Function to clear unsaved changes flag
+// Função para limpar o status de mudanças não salvas
 function clearUnsavedChanges() {
     hasUnsavedChanges = false;
+    updateWarningDisplay();
 }
 
-// Add event listeners to track changes
-document.getElementById('vehicle-name').addEventListener('input', setUnsavedChanges);
-document.getElementById('vehicle-year').addEventListener('input', setUnsavedChanges);
-document.getElementById('checklist-body').addEventListener('change', setUnsavedChanges);
-
-// Clear unsaved changes when saving
-document.querySelector('button[onclick="exportarSelecoes()"]').addEventListener('click', clearUnsavedChanges);
-
-if (isIOS) {
-    // Função para mostrar alerta personalizado
-    function showIOSAlert() {
-        if (hasUnsavedChanges) {
-            return confirm('Você tem alterações não salvas. Deseja realmente sair da página?');
-        }
-        return true;
-    }
-
-    // Adicionar eventos específicos para iOS
-    window.addEventListener('beforeunload', showIOSAlert);
-    window.addEventListener('pagehide', showIOSAlert);
-    window.addEventListener('unload', showIOSAlert);
-    
-    // Interceptar cliques em links
-    document.addEventListener('click', function(e) {
-        const target = e.target.closest('a');
-        if (target && hasUnsavedChanges) {
-            if (!confirm('Você tem alterações não salvas. Deseja realmente sair da página?')) {
-                e.preventDefault();
-            }
-        }
-    });
-
-    // Interceptar navegação
-    window.onpopstate = function(e) {
-        if (hasUnsavedChanges) {
-            if (!confirm('Você tem alterações não salvas. Deseja realmente sair da página?')) {
-                e.preventDefault();
-                history.pushState(null, null, location.href);
-            }
-        }
-    };
-} else {
-    // Para outros navegadores mantemos o comportamento padrão
-    window.addEventListener('beforeunload', function(e) {
-        if (hasUnsavedChanges) {
-            const message = 'Você tem alterações não salvas. Deseja realmente sair da página?';
-            e.preventDefault();
-            e.returnValue = message;
-            return message;
-        }
-    });
-}
-
-// Adicionar indicador visual para iOS
-if (isIOS) {
+// Função para atualizar o aviso visual
+function updateWarningDisplay() {
     const warning = document.getElementById('ios-warning');
     if (warning) {
-        function updateWarning() {
-            warning.style.display = hasUnsavedChanges ? 'block' : 'none';
-        }
-        
-        const originalSet = setUnsavedChanges;
-        setUnsavedChanges = function() {
-            originalSet();
-            updateWarning();
-        }
-        
-        const originalClear = clearUnsavedChanges;
-        clearUnsavedChanges = function() {
-            originalClear();
-            updateWarning();
-        }
+        warning.style.display = hasUnsavedChanges ? 'block' : 'none';
     }
 }
+
+// Configurar os event listeners para os elementos que queremos monitorar
+function setupChangeTracking() {
+    elementsToTrack.forEach(elementId => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            if (elementId === 'checklist-body') {
+                // Para a tabela de checklist, monitoramos mudanças em selects
+                element.addEventListener('change', function(e) {
+                    if (e.target.tagName === 'SELECT') {
+                        setUnsavedChanges();
+                    }
+                });
+            } else {
+                // Para inputs de texto/número
+                element.addEventListener('input', setUnsavedChanges);
+            }
+        }
+    });
+}
+
+// Configurar manipuladores de eventos para navegação
+function setupNavigationHandlers() {
+    if (isIOS) {
+        // Manipulador específico para iOS
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        // Suporte para o botão voltar no iOS
+        window.onpopstate = function(e) {
+            if (hasUnsavedChanges) {
+                const confirmLeave = confirm('Você tem alterações não salvas. Deseja realmente sair da página?');
+                if (!confirmLeave) {
+                    history.pushState(null, null, window.location.pathname);
+                }
+            }
+        };
+
+        // Interceptar cliques em links no iOS
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('a');
+            if (target && hasUnsavedChanges) {
+                const confirmLeave = confirm('Você tem alterações não salvas. Deseja realmente sair da página?');
+                if (!confirmLeave) {
+                    e.preventDefault();
+                }
+            }
+        });
+    } else {
+        // Manipulador para outros navegadores
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                const message = 'Você tem alterações não salvas. Deseja realmente sair da página?';
+                e.returnValue = message;
+                return message;
+            }
+        });
+    }
+}
+
+// Adicionar aviso visual para iOS
+function setupIOSWarning() {
+    if (isIOS) {
+        const warningDiv = document.createElement('div');
+        warningDiv.id = 'ios-warning';
+        warningDiv.style.cssText = `
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #ff3b30;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 9999;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+        warningDiv.textContent = 'Existem alterações não salvas';
+        document.body.appendChild(warningDiv);
+    }
+}
+
+// Limpar mudanças não salvas após salvar
+function setupSaveHandlers() {
+    const saveButtons = [
+        document.querySelector('button[onclick="exportarSelecoes()"]'),
+        document.querySelector('button[onclick="baixarRelatorio(\'pdf\')"]')
+    ];
+
+    saveButtons.forEach(button => {
+        if (button) {
+            const originalOnClick = button.onclick;
+            button.onclick = function(e) {
+                if (originalOnClick) {
+                    originalOnClick.call(this, e);
+                }
+                clearUnsavedChanges();
+            };
+        }
+    });
+}
+
+// Inicializar todos os manipuladores de eventos
+function initializeChangeTracking() {
+    setupChangeTracking();
+    setupNavigationHandlers();
+    setupIOSWarning();
+    setupSaveHandlers();
+}
+
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', initializeChangeTracking);
+
+// Exportar funções que precisam ser acessadas externamente
+window.setUnsavedChanges = setUnsavedChanges;
+window.clearUnsavedChanges = clearUnsavedChanges;
 
         const pecas = [
             'capô',
