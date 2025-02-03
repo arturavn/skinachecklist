@@ -721,6 +721,10 @@
     <script>
 
         // Variable to track if there are unsaved changes
+// Detectar se é um dispositivo iOS
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+// Variable to track if there are unsaved changes
 let hasUnsavedChanges = false;
 
 // Function to set unsaved changes flag
@@ -741,15 +745,24 @@ document.getElementById('checklist-body').addEventListener('change', setUnsavedC
 // Clear unsaved changes when saving
 document.querySelector('button[onclick="exportarSelecoes()"]').addEventListener('click', clearUnsavedChanges);
 
-// Add beforeunload event listener
+// Adiciona ambos os event listeners para maior compatibilidade
 window.addEventListener('beforeunload', function(e) {
     if (hasUnsavedChanges) {
-        // Standard message (browsers may show their own message instead)
         const message = 'Você tem alterações não salvas. Deseja realmente sair da página?';
-        e.returnValue = message; // Standard
-        return message; // For older browsers
+        e.preventDefault(); // Necessário para Firefox
+        e.returnValue = message; // Necessário para Chrome
+        return message; // Para compatibilidade com navegadores mais antigos
     }
 });
+
+// Adiciona suporte específico para iOS
+window.addEventListener('pagehide', function(e) {
+    if (hasUnsavedChanges) {
+        e.preventDefault();
+    }
+});
+
+
         const pecas = [
             'capô',
 'Farol Direito',
