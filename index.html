@@ -723,9 +723,7 @@
 
     <script>
 
-        // Variable to track if there are unsaved changes
-// Detectar se é um dispositivo iOS
-// Detectar se é um dispositivo iOS
+ // Detectar se é um dispositivo iOS
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 // Variable to track if there are unsaved changes
@@ -749,54 +747,41 @@ document.getElementById('checklist-body').addEventListener('change', setUnsavedC
 // Clear unsaved changes when saving
 document.querySelector('button[onclick="exportarSelecoes()"]').addEventListener('click', clearUnsavedChanges);
 
-// Adicionar indicador visual para iOS
 if (isIOS) {
-    const warning = document.getElementById('ios-warning');
-    if (warning) {
-        // Mostrar/esconder o aviso
-        function updateWarning() {
-            warning.style.display = hasUnsavedChanges ? 'block' : 'none';
+    // Função para mostrar alerta personalizado
+    function showIOSAlert() {
+        if (hasUnsavedChanges) {
+            return confirm('Você tem alterações não salvas. Deseja realmente sair da página?');
         }
-        
-        // Atualizar a função setUnsavedChanges
-        const originalSet = setUnsavedChanges;
-        setUnsavedChanges = function() {
-            originalSet();
-            updateWarning();
-        }
-        
-        // Atualizar a função clearUnsavedChanges
-        const originalClear = clearUnsavedChanges;
-        clearUnsavedChanges = function() {
-            originalClear();
-            updateWarning();
-        }
+        return true;
     }
-}
 
-if (isIOS) {
-    // Abordagem específica para iOS
-    window.onbeforeunload = function() {
-        if (hasUnsavedChanges) {
-            return "Você tem alterações não salvas. Deseja realmente sair?";
-        }
-    };
+    // Adicionar eventos específicos para iOS
+    window.addEventListener('beforeunload', showIOSAlert);
+    window.addEventListener('pagehide', showIOSAlert);
+    window.addEventListener('unload', showIOSAlert);
     
-    window.onpagehide = function() {
-        if (hasUnsavedChanges) {
-            return "Você tem alterações não salvas. Deseja realmente sair?";
-        }
-    };
-    
-    // Adicionar evento unload também para iOS
-    window.addEventListener('unload', function(e) {
-        if (hasUnsavedChanges) {
-            e.preventDefault();
-            e.returnValue = '';
+    // Interceptar cliques em links
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('a');
+        if (target && hasUnsavedChanges) {
+            if (!confirm('Você tem alterações não salvas. Deseja realmente sair da página?')) {
+                e.preventDefault();
+            }
         }
     });
+
+    // Interceptar navegação
+    window.onpopstate = function(e) {
+        if (hasUnsavedChanges) {
+            if (!confirm('Você tem alterações não salvas. Deseja realmente sair da página?')) {
+                e.preventDefault();
+                history.pushState(null, null, location.href);
+            }
+        }
+    };
 } else {
-    // Para outros navegadores
+    // Para outros navegadores mantemos o comportamento padrão
     window.addEventListener('beforeunload', function(e) {
         if (hasUnsavedChanges) {
             const message = 'Você tem alterações não salvas. Deseja realmente sair da página?';
@@ -805,6 +790,28 @@ if (isIOS) {
             return message;
         }
     });
+}
+
+// Adicionar indicador visual para iOS
+if (isIOS) {
+    const warning = document.getElementById('ios-warning');
+    if (warning) {
+        function updateWarning() {
+            warning.style.display = hasUnsavedChanges ? 'block' : 'none';
+        }
+        
+        const originalSet = setUnsavedChanges;
+        setUnsavedChanges = function() {
+            originalSet();
+            updateWarning();
+        }
+        
+        const originalClear = clearUnsavedChanges;
+        clearUnsavedChanges = function() {
+            originalClear();
+            updateWarning();
+        }
+    }
 }
 
         const pecas = [
