@@ -721,76 +721,33 @@
 
     <script>
 
- // Detectar iOS de forma mais abrangente
+ // Detectar se é um dispositivo iOS
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream || 
               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-// Estado global para mudanças não salvas
+// Variável para rastrear mudanças não salvas
 let hasUnsavedChanges = false;
 
-// Função para configurar os handlers de navegação
-function setupNavigationHandlers() {
-    if (isIOS) {
-        // Adicionar um estado à história quando a página carrega
-        window.history.pushState({ page: 'checklist' }, '');
-        
-        // Interceptar tentativas de navegação
-        window.addEventListener('popstate', function(e) {
-            if (hasUnsavedChanges) {
-                // Prevenir a navegação
-                window.history.pushState({ page: 'checklist' }, '');
-                
-                // Mostrar confirmação nativa
-                if (confirm('Você tem alterações não salvas. Deseja realmente sair da página?')) {
-                    // Se confirmar, permitir a navegação
-                    window.history.back();
-                }
-            }
-        });
+// Elementos que precisam ser monitorados para mudanças
+const elementsToTrack = [
+    'vehicle-name',
+    'vehicle-year',
+    'checklist-body'
+];
 
-        // Adicionar evento pagehide específico para iOS
-        window.addEventListener('pagehide', function(e) {
-            if (hasUnsavedChanges) {
-                e.preventDefault();
-                return 'Você tem alterações não salvas. Deseja realmente sair da página?';
-            }
-        });
-
-        // Interceptar cliques em links
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('a');
-            if (link && hasUnsavedChanges) {
-                e.preventDefault();
-                if (confirm('Você tem alterações não salvas. Deseja realmente sair da página?')) {
-                    window.location.href = link.href;
-                }
-            }
-        });
-    } else {
-        // Para outros navegadores, manter o comportamento original
-        window.addEventListener('beforeunload', function(e) {
-            if (hasUnsavedChanges) {
-                e.preventDefault();
-                e.returnValue = 'Você tem alterações não salvas. Deseja realmente sair da página?';
-                return e.returnValue;
-            }
-        });
-    }
-}
-
-// Função para marcar mudanças
+// Função para marcar que existem mudanças não salvas
 function setUnsavedChanges() {
     hasUnsavedChanges = true;
     updateWarningDisplay();
 }
 
-// Função para limpar mudanças
+// Função para limpar o status de mudanças não salvas
 function clearUnsavedChanges() {
     hasUnsavedChanges = false;
     updateWarningDisplay();
 }
 
-// Atualizar o aviso visual
+// Função para atualizar o aviso visual
 function updateWarningDisplay() {
     const warning = document.getElementById('ios-warning');
     if (warning) {
@@ -798,11 +755,73 @@ function updateWarningDisplay() {
     }
 }
 
-// Inicializar
-document.addEventListener('DOMContentLoaded', function() {
-    setupNavigationHandlers();
-    
-    // Adicionar aviso visual para iOS
+// Configurar os event listeners para os elementos que queremos monitorar
+function setupChangeTracking() {
+    elementsToTrack.forEach(elementId => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            if (elementId === 'checklist-body') {
+                // Para a tabela de checklist, monitoramos mudanças em selects
+                element.addEventListener('change', function(e) {
+                    if (e.target.tagName === 'SELECT') {
+                        setUnsavedChanges();
+                    }
+                });
+            } else {
+                // Para inputs de texto/número
+                element.addEventListener('input', setUnsavedChanges);
+            }
+        }
+    });
+}
+
+// Configurar manipuladores de eventos para navegação
+function setupNavigationHandlers() {
+    if (isIOS) {
+        // Manipulador específico para iOS
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        // Suporte para o botão voltar no iOS
+        window.onpopstate = function(e) {
+            if (hasUnsavedChanges) {
+                const confirmLeave = confirm('Você tem alterações não salvas. Deseja realmente sair da página?');
+                if (!confirmLeave) {
+                    history.pushState(null, null, window.location.pathname);
+                }
+            }
+        };
+
+        // Interceptar cliques em links no iOS
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('a');
+            if (target && hasUnsavedChanges) {
+                const confirmLeave = confirm('Você tem alterações não salvas. Deseja realmente sair da página?');
+                if (!confirmLeave) {
+                    e.preventDefault();
+                }
+            }
+        });
+    } else {
+        // Manipulador para outros navegadores
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                const message = 'Você tem alterações não salvas. Deseja realmente sair da página?';
+                e.returnValue = message;
+                return message;
+            }
+        });
+    }
+}
+
+// Adicionar aviso visual para iOS
+function setupIOSWarning() {
     if (isIOS) {
         const warningDiv = document.createElement('div');
         warningDiv.id = 'ios-warning';
@@ -819,29 +838,43 @@ document.addEventListener('DOMContentLoaded', function() {
             font-weight: bold;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         `;
-        warningDiv.textContent = 'Alterações não salvas';
+        warningDiv.textContent = 'Existem alterações não salvas';
         document.body.appendChild(warningDiv);
     }
-    
-    // Monitorar mudanças nos elementos relevantes
-    const elementsToTrack = ['vehicle-name', 'vehicle-year', 'checklist-body'];
-    elementsToTrack.forEach(elementId => {
-        const element = document.getElementById(elementId);
-        if (element) {
-            if (elementId === 'checklist-body') {
-                element.addEventListener('change', function(e) {
-                    if (e.target.tagName === 'SELECT') {
-                        setUnsavedChanges();
-                    }
-                });
-            } else {
-                element.addEventListener('input', setUnsavedChanges);
-            }
+}
+
+// Limpar mudanças não salvas após salvar
+function setupSaveHandlers() {
+    const saveButtons = [
+        document.querySelector('button[onclick="exportarSelecoes()"]'),
+        document.querySelector('button[onclick="baixarRelatorio(\'pdf\')"]')
+    ];
+
+    saveButtons.forEach(button => {
+        if (button) {
+            const originalOnClick = button.onclick;
+            button.onclick = function(e) {
+                if (originalOnClick) {
+                    originalOnClick.call(this, e);
+                }
+                clearUnsavedChanges();
+            };
         }
     });
-});
+}
 
-// Expor funções necessárias globalmente
+// Inicializar todos os manipuladores de eventos
+function initializeChangeTracking() {
+    setupChangeTracking();
+    setupNavigationHandlers();
+    setupIOSWarning();
+    setupSaveHandlers();
+}
+
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', initializeChangeTracking);
+
+// Exportar funções que precisam ser acessadas externamente
 window.setUnsavedChanges = setUnsavedChanges;
 window.clearUnsavedChanges = clearUnsavedChanges;
 
