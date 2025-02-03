@@ -1135,6 +1135,18 @@ function updateChecklistTable() {
     const checklistBody = document.getElementById('checklist-body');
     const fragment = document.createDocumentFragment();
     
+    // Salvar o estado atual das seleções antes de atualizar
+    const currentSelections = new Map();
+    const existingRows = checklistBody.querySelectorAll('tr');
+    existingRows.forEach(row => {
+        const peca = row.cells[0].textContent;
+        const select = row.cells[1].querySelector('select');
+        currentSelections.set(peca, {
+            value: select.value,
+            observacao: select.getAttribute('data-observacao')
+        });
+    });
+    
     totalItems = customPecas.size;
     completedItems = 0;
 
@@ -1160,11 +1172,28 @@ function updateChecklistTable() {
         select.appendChild(optionNao);
         select.appendChild(optionSim);
 
-        let isChanging = false; // Flag para controlar o evento
+        // Restaurar o estado anterior se existir
+        const previousState = currentSelections.get(peca);
+        if (previousState) {
+            select.value = previousState.value;
+            if (previousState.value === 'Sim') {
+                select.setAttribute('data-observacao', previousState.observacao || 'Sem observação');
+                select.classList.add('status-possui');
+                select.classList.remove('status-nao-possui');
+                completedItems++;
+            } else {
+                select.classList.add('status-nao-possui');
+                select.classList.remove('status-possui');
+            }
+        } else {
+            select.classList.add('status-nao-possui');
+        }
+
+        let isChanging = false;
 
         select.addEventListener('change', function() {
-            if (isChanging) return; // Se já está processando uma mudança, retorna
-            isChanging = true; // Marca que está processando
+            if (isChanging) return;
+            isChanging = true;
 
             if (this.value === 'Sim') {
                 const observacao = prompt(`Insira uma observação para ${peca}:`);
@@ -1180,10 +1209,9 @@ function updateChecklistTable() {
             }
             updateProgress();
             setUnsavedChanges();
-            isChanging = false; // Marca que terminou o processamento
+            isChanging = false;
         });
 
-        select.classList.add('status-nao-possui');
         possuiCell.appendChild(select);
         row.appendChild(pecaCell);
         row.appendChild(possuiCell);
